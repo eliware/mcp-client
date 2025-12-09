@@ -2,7 +2,7 @@
   "name": "@eliware/mcp-client",
   "type": "module",
   "version": "1.1.0",
-  "description": "A Node.js mcp-client.",
+  "description": "A robust Node.js client for connecting to Model Context Protocol (MCP) servers with automatic reconnect, authentication, and flexible transport support.",
   "main": "index.cjs",
   "module": "index.mjs",
   "types": "index.d.ts",
@@ -27,10 +27,18 @@
     "type": "git",
     "url": "git+https://github.com/eliware/mcp-client.git"
   },
-    "keywords": [
-        "mcp-client",
-        "nodejs"
-    ],
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "client",
+    "nodejs",
+    "sdk",
+    "ai",
+    "ml",
+    "api",
+    "reconnect",
+    "authentication"
+  ],
   "author": "Eli Sterling, eliware.org <eli@eliware.org>",
   "license": "MIT",
   "bugs": {
@@ -49,6 +57,7 @@
     ]
   },
   "dependencies": {
-    "@eliware/common": "^1.1.1"
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "@eliware/common": "^1.0.17"
   }
 }
