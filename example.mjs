@@ -1,16 +1,15 @@
-// Example usage for ES Modules
-import mcpClient from '@eliware/mcp-client';
+// Minimal MCP client example.
+// The server endpoint is normally /mcp for Streamable HTTP.
+import mcpClient from './index.mjs';
 
-(async () => {
-    try {
-        const client = await mcpClient({
-            // Optionally provide a token, or set MCP_TOKEN in env
-            // token: 'your-mcp-token',
-            // Optionally override baseUrl, port, log, etc.
-        });
-        console.log('MCP Client connected:', !!client);
-        // Use the client as needed...
-    } catch (err) {
-        console.error('Failed to connect MCP Client:', err);
-    }
-})();
+const client = await mcpClient({
+  url: process.env.MCP_URL ?? 'http://localhost:1234/mcp',
+  token: process.env.MCP_TOKEN,
+});
+
+const { tools } = await client.listTools();
+console.log('Available tools:', tools.map(({ name }) => name));
+
+// The returned object is the official MCP SDK Client, so standard methods
+// such as callTool(), listResources(), and getPrompt() are available.
+await client.close();
