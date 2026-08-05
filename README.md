@@ -137,13 +137,26 @@ For advanced integrations, `client.mcpConnection.transport` exposes the active S
 - `maxReconnectAttempts` — retry limit; defaults to unlimited.
 - `ClientClass`, `TransportClass`, `HTTPTransportClass`, `SSETransportClass`, `StdioTransportClass` — injectable SDK classes for tests/adapters.
 
-## Example
+## Examples
+
+Focused examples are in `examples/`:
+
+- `http.mjs` — recommended Streamable HTTP transport.
+- `sse.mjs` — legacy SSE transport.
+- `stdio.mjs` — local child-process server.
+- `static-token.mjs` — static bearer token.
+- `token-provider.mjs` — rotating/async token provider.
+- `custom-headers.mjs` — custom request headers.
+- `reconnect.mjs` — reconnect policy.
+- `injected-transport.mjs` — dependency-injected transport for adapters/tests.
+
+Run one with:
 
 ```bash
-MCP_URL=http://localhost:1234/mcp MCP_TOKEN=test node example.mjs
+MCP_URL=http://localhost:1234/mcp node examples/http.mjs
 ```
 
-`example.mjs` demonstrates listing tools and is intentionally minimal.
+Examples are documentation and are included in the npm package; they are not imported by the library.
 
 ## Development
 
@@ -154,7 +167,7 @@ npm test
 npm pack --dry-run
 ```
 
-The test suite covers all public helpers, transport selection, reconnect behavior, and a real stdio integration using `@eliware/mcp-server` as a development dependency. The package tarball contains only the runtime module, declarations, example, README, and license.
+The test suite covers all public helpers, transport selection, reconnect behavior, and a real stdio integration using `@eliware/mcp-server` as a development dependency. The package tarball contains only the runtime module, declarations, examples, README, and license.
 
 ## License
 
