@@ -1,4 +1,5 @@
-# @eliware/mcp-client
+# [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
+# @eliware/mcp-client [![npm version](https://img.shields.io/npm/v/@eliware/mcp-client.svg)](https://www.npmjs.com/package/@eliware/mcp-client) [![license](https://img.shields.io/github/license/eliware/mcp-client.svg)](LICENSE) [![build status](https://github.com/eliware/mcp-client/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-client/actions)
 
 A pure-ESM Node.js client for standards-compatible Model Context Protocol (MCP) servers.
 
@@ -172,3 +173,16 @@ The test suite covers all public helpers, transport selection, reconnect behavio
 ## License
 
 MIT © Eli Sterling, eliware.org
+
+## Support
+
+For help, questions, or community chat:
+
+[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)
+
+## Links
+
+- [Home Page](https://eliware.org)
+- [GitHub Repo](https://github.com/eliware/mcp-client)
+- [GitHub Org](https://github.com/eliware)
+- [Discord](https://discord.gg/M6aTR9eTwN)
