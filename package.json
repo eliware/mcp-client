@@ -57,7 +57,7 @@
   },
   "homepage": "https://github.com/eliware/mcp-client#readme",
   "devDependencies": {
-    "@eliware/mcp-server": "^1.1.4",
+    "@eliware/mcp-server": "^1.1.5",
     "jest": "^30.4.2",
     "oxlint": "^1.77.0"
   },
