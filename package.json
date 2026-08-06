@@ -1,75 +1,76 @@
 {
-    "name": "@eliware/mcp-client",
-    "type": "module",
-    "version": "1.1.2",
-    "description": "Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.",
-    "main": "index.mjs",
-    "module": "index.mjs",
-    "types": "index.d.ts",
-    "files": [
-        "index.mjs",
-        "index.d.ts",
-        "README.md",
-        "LICENSE",
-        "examples"
-    ],
-    "exports": {
-        ".": {
-            "import": "./index.mjs",
-            "types": "./index.d.ts"
-        }
-    },
-    "scripts": {
-        "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --coverage --detectOpenHandles --silent --runInBand",
-        "lint": "npx oxlint ."
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/eliware/mcp-client.git"
-    },
-    "keywords": [
-        "mcp",
-        "model-context-protocol",
-        "mcp-client",
-        "model-context-protocol-client",
-        "streamable-http",
-        "http",
-        "sse",
-        "stdio",
-        "json-rpc",
-        "oauth2",
-        "bearer-token",
-        "authentication",
-        "token-provider",
-        "reconnect",
-        "typescript",
-        "esm",
-        "nodejs",
-        "ai",
-        "ai-tools",
-        "llm"
-    ],
-    "author": "Eli Sterling, eliware.org <eli@eliware.org>",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/eliware/mcp-client/issues"
-    },
-    "homepage": "https://github.com/eliware/mcp-client#readme",
-    "devDependencies": {
-        "@eliware/mcp-server": "^1.1.4",
-        "jest": "^30.4.2",
-        "oxlint": "^1.77.0"
-    },
-    "jest": {
-        "testEnvironment": "node",
-        "testMatch": [
-            "**/?(*.)+(spec|test).[jt]s?(x)",
-            "**/?(*.)+(spec|test).mjs",
-            "**/?(*.)+(spec|test).cjs"
-        ]
-    },
-    "dependencies": {
-        "@eliware/common": "^1.1.4",
-        "@modelcontextprotocol/sdk": "^1.30.0"
+  "name": "@eliware/mcp-client",
+  "type": "module",
+  "version": "1.1.2",
+  "description": "Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.",
+  "main": "index.mjs",
+  "module": "index.mjs",
+  "types": "index.d.ts",
+  "files": [
+    "index.mjs",
+    "index.d.ts",
+    "README.md",
+    "LICENSE",
+    "examples"
+  ],
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "types": "./index.d.ts"
     }
+  },
+  "scripts": {
+    "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --coverage --detectOpenHandles --silent --runInBand",
+    "lint": "npx oxlint .",
+    "test:gaps": "npm test -- --coverageReporters=text 2>&1 | awk '!/100%/'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliware/mcp-client.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-client",
+    "model-context-protocol-client",
+    "streamable-http",
+    "http",
+    "sse",
+    "stdio",
+    "json-rpc",
+    "oauth2",
+    "bearer-token",
+    "authentication",
+    "token-provider",
+    "reconnect",
+    "typescript",
+    "esm",
+    "nodejs",
+    "ai",
+    "ai-tools",
+    "llm"
+  ],
+  "author": "Eli Sterling, eliware.org <eli@eliware.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eliware/mcp-client/issues"
+  },
+  "homepage": "https://github.com/eliware/mcp-client#readme",
+  "devDependencies": {
+    "@eliware/mcp-server": "^1.1.4",
+    "jest": "^30.4.2",
+    "oxlint": "^1.77.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)",
+      "**/?(*.)+(spec|test).mjs",
+      "**/?(*.)+(spec|test).cjs"
+    ]
+  },
+  "dependencies": {
+    "@eliware/common": "^1.1.4",
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  }
 }
