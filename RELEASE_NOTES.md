@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.1.4 — 2026-08-07
+
+- Standardized validation scripts, TypeScript checking, CI, and package metadata.
+- Updated `@eliware/common` to 1.1.7 and `@eliware/mcp-server` to 1.1.8.
+- Expanded requirements, troubleshooting, development, and security documentation.
+
 ## 1.1.3 — August 7, 2026
 
 ### Changed

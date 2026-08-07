@@ -15,6 +15,11 @@ It uses the official MCP SDK transports and supports Streamable HTTP (recommende
 - Injectable client and transport classes for tests and adapters.
 - Pure ESM with TypeScript declarations.
 
+## Requirements
+
+- Node.js 26 or newer
+- An MCP server endpoint for live HTTP/SSE use, or a local MCP server command for stdio
+
 ## Install
 
 ```bash
@@ -159,16 +164,27 @@ MCP_URL=http://localhost:1234/mcp node examples/http.mjs
 
 Examples are documentation and are included in the npm package; they are not imported by the library.
 
+## Errors / Troubleshooting
+
+Connection and transport failures are surfaced to the caller and optional logger. Use `close()` or `disconnect()` to stop reconnect attempts and release transports. Keep stdio server logs on stderr, and do not expose bearer tokens, credential-bearing URLs, or sensitive tool data.
+
 ## Development
 
 ```bash
 npm install
 npm run lint
 npm test
+npm run test:gaps
+npm run lint
+npm run typecheck
 npm pack --dry-run
 ```
 
 The test suite covers all public helpers, transport selection, reconnect behavior, and a real stdio integration using `@eliware/mcp-server` as a development dependency. The package tarball contains only the runtime module, declarations, examples, README, and license.
+
+## Security
+
+Keep MCP tokens, OAuth credentials, private URLs, and child-process environment secrets in secure configuration. Use HTTPS for remote deployments and treat tool arguments/results as potentially sensitive.
 
 ## License
 
