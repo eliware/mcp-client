@@ -1,7 +1,7 @@
 import { jest, test, expect, beforeEach, afterEach, describe } from '@jest/globals';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import mcpClient, { createTransport, resolveAuthHeaders, numberOption, assertOpen, normalizeOptions } from './index.mjs';
+import mcpClient, { createTransport, resolveAuthHeaders, numberOption, assertOpen, normalizeOptions } from '../index.mjs';
 
 const connect = jest.fn();
 const events = {};
