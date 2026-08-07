@@ -1,5 +1,20 @@
 # Release Notes
 
+## 1.1.3 — August 7, 2026
+
+### Changed
+
+- Updated `@eliware/mcp-server` from `^1.1.5` to `^1.1.6`.
+- Regenerated the npm lockfile.
+- Added manual GitHub Actions workflow dispatch support.
+
+### Verification
+
+- Jest: 20 tests passed.
+- Coverage: 100% statements, branches, functions, and lines.
+- Oxlint: 0 warnings/errors.
+- npm audit: 0 vulnerabilities.
+
 ## 1.1.2 — Current changes
 
 This release modernizes the MCP client as a pure-ESM, standards-compatible companion to `@eliware/mcp-server`.
