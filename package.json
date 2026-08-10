@@ -71,7 +71,7 @@
         ]
     },
     "dependencies": {
-        "@eliware/common": "^1.1.7",
+        "@eliware/common": "^1.1.8",
         "@modelcontextprotocol/sdk": "^1.30.0"
     }
 }
