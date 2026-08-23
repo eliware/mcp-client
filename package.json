@@ -19,7 +19,7 @@
     },
     "scripts": {
         "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --coverage --detectOpenHandles --silent --runInBand",
-        "lint": "npx oxlint .",
+        "lint": "npx oxlint . --deny-warnings",
         "test:gaps": "npm test && node scripts/check-coverage.mjs",
         "typecheck": "tsc --project tsconfig.json",
         "pack": "npm pack --dry-run"
