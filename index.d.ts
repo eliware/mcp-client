@@ -47,6 +47,8 @@ export interface McpClientOptions {
   reconnectMaxDelay?: number;
   /** Maximum reconnect attempts; defaults to Infinity. */
   maxReconnectAttempts?: number;
+  /** Force IPv4 connections; defaults to true on Windows to avoid Node hostname connection delays. */
+  forceIPv4?: boolean;
 }
 
 /** A connected official MCP SDK Client with lifecycle helpers attached. */
