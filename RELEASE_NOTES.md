@@ -1,5 +1,13 @@
 # Release Notes
 
+## 1.1.5 — 2026-08-23
+
+- Added Windows IPv4-forced HTTP dispatch to avoid Node hostname delays.
+- Updated Undici and refreshed the MCP server dependency to 1.1.9.
+- Added cross-platform Ubuntu and Windows CI with 100x4 coverage checks.
+- Made lint warnings fail CI and added portable coverage-gap checking.
+- Added default-client and stdio integration coverage.
+
 ## 1.1.4 — 2026-08-07
 
 - Standardized validation scripts, TypeScript checking, CI, and package metadata.
