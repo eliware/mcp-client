@@ -1,6 +1,5 @@
 import { jest, test, expect, beforeEach, afterEach, describe } from '@jest/globals';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 import mcpClient, { createTransport, resolveAuthHeaders, numberOption, assertOpen, normalizeOptions } from '../index.mjs';
 
 const connect = jest.fn();
@@ -36,6 +35,10 @@ describe('mcpClient', () => {
     expect(client.info.name).toBe('@eliware/mcp-client');
     expect(client.mcpConnection.transport.url).toBe('http://server/mcp');
     expect(log.debug).toHaveBeenCalledWith('MCP client connected (http)');
+    await client.close();
+  });
+  test('creates IPv4 dispatcher when requested', async () => {
+    const client = await mcpClient({ forceIPv4: true, ClientClass: MockClient, TransportClass: MockTransport, reconnect: false });
     await client.close();
   });
   test('adds bearer and custom headers', async () => {
