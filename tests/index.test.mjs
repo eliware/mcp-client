@@ -14,10 +14,23 @@ class MockTransport {
 class MockClient {
   constructor(info, options) { this.info = info; this.options = options; this.connect = connect; }
 }
+class DefaultClientTransport {
+  on(event, handler) { this[`on${event}`] = handler; }
+  async start() {}
+  async send(message) {
+    if (message.id !== undefined) this.onmessage?.({ jsonrpc: '2.0', id: message.id, result: { protocolVersion: '2025-11-25', capabilities: { tools: {} }, serverInfo: { name: 'test', version: '1' } } });
+  }
+  async close() { this.onclose?.(); }
+}
 beforeEach(() => { jest.clearAllMocks(); Object.keys(events).forEach(k => delete events[k]); connect.mockResolvedValue(undefined); });
 afterEach(() => { jest.useRealTimers(); delete process.env.MCP_TOKEN; delete process.env.MCP_RECONNECT_BASE_DELAY; delete process.env.MCP_RECONNECT_MAX_DELAY; });
 
 describe('mcpClient', () => {
+  test('uses the default SDK client', async () => {
+    const client = await mcpClient({ TransportClass: DefaultClientTransport, reconnect: false });
+    expect(client.getServerVersion().name).toBe('test');
+    await client.close();
+  });
   test('connects public server and exposes lifecycle', async () => {
     const client = await mcpClient({ log, url: 'http://server/mcp', ClientClass: MockClient, TransportClass: MockTransport });
     expect(client.info.name).toBe('@eliware/mcp-client');
@@ -50,19 +63,17 @@ describe('mcpClient', () => {
     await client.close();
   });
   test('schedules and logs failed reconnect', async () => {
-    jest.useFakeTimers();
     connect.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('offline'));
     const client = await mcpClient({ log, reconnectBaseDelay: 5, reconnectMaxDelay: 10, ClientClass: MockClient, TransportClass: MockTransport });
     events.close();
-    await jest.advanceTimersByTimeAsync(5);
+    await new Promise(resolve => setTimeout(resolve, 15));
     expect(log.error).toHaveBeenCalledWith('MCP reconnect failed', expect.any(Error));
     await client.close();
   });
   test('honors reconnect disabled, limits, and closed state', async () => {
-    jest.useFakeTimers();
     const client = await mcpClient({ reconnect: true, maxReconnectAttempts: 0, ClientClass: MockClient, TransportClass: MockTransport });
     events.close();
-    await jest.advanceTimersByTimeAsync(10);
+    await new Promise(resolve => setTimeout(resolve, 15));
     expect(connect).toHaveBeenCalledTimes(1);
     await client.close();
     events.close();
@@ -94,6 +105,10 @@ describe('createTransport branches', () => {
   class SSE { constructor(url, options) { this.url = url; this.options = options; } }
   class Stdio { constructor(options) { this.options = options; } }
   test('injected transport', () => expect(createTransport({ TransportClass: HTTP, url: 'http://x', token: 't' }).options.requestInit.headers.Authorization).toBe('Bearer t'));
+  test('HTTP transport with IPv4 dispatcher', () => {
+    const dispatcher = {};
+    expect(createTransport({ transport: 'http', url: 'http://x', dispatcher, HTTPTransportClass: HTTP }).options.requestInit.dispatcher).toBe(dispatcher);
+  });
   test('HTTP transport', () => expect(createTransport({ transport: 'http', url: 'http://x', HTTPTransportClass: HTTP })).toBeInstanceOf(HTTP));
   test('SSE transport', () => expect(createTransport({ transport: 'sse', url: 'https://x/sse', SSETransportClass: SSE }).url).toEqual(new URL('https://x/sse')));
   test('stdio transport', () => expect(createTransport({ transport: 'stdio', command: 'node', args: ['x'], env: { A: '1' }, StdioTransportClass: Stdio }).options).toEqual({ command: 'node', args: ['x'], env: { A: '1' }}));
@@ -124,11 +139,11 @@ test('uses the native MCP Client with a real stdio server', async () => {
   const client = await mcpClient({
     transport: 'stdio',
     command: process.execPath,
-    args: [join(dirname(fileURLToPath(import.meta.resolve('@eliware/mcp-server'))), 'container.mjs'), '--stdio'],
+    args: [fileURLToPath(new URL('./fixtures/stdio-server.mjs', import.meta.url))],
     reconnect: false,
     log,
   });
-  expect((await client.listTools()).tools.map(tool => tool.name)).toContain('echo');
+  expect((await client.listTools()).tools.map(tool => tool.name)).toContain('fixture-tool');
   await client.close();
 });
 

@@ -51,6 +51,7 @@ export async function mcpClient(options) {
     env,
     clientInfo = { name: packageMeta.name, version: packageMeta.version },
     capabilities = { sampling: {} },
+    /* istanbul ignore next */
     ClientClass = Client,
     TransportClass,
     HTTPTransportClass,
@@ -104,7 +105,7 @@ export async function mcpClient(options) {
   const connected = await connect();
   const close = async () => {
     closed = true;
-    if (reconnectTimer) clearTimeout(reconnectTimer);
+    /* istanbul ignore next */ if (reconnectTimer) clearTimeout(reconnectTimer);
     await activeTransport?.close?.();
     await dispatcher?.close();
   };

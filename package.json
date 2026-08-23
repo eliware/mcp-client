@@ -20,7 +20,7 @@
     "scripts": {
         "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --coverage --detectOpenHandles --silent --runInBand",
         "lint": "npx oxlint .",
-        "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
+        "test:gaps": "npm test && node scripts/check-coverage.mjs",
         "typecheck": "tsc --project tsconfig.json",
         "pack": "npm pack --dry-run"
     },
@@ -57,9 +57,9 @@
     },
     "homepage": "https://github.com/eliware/mcp-client#readme",
     "devDependencies": {
-        "@eliware/mcp-server": "^1.1.8",
+        "@eliware/mcp-server": "^1.1.9",
         "jest": "^30.4.2",
-        "oxlint": "^1.77.0",
+        "oxlint": "^1.79.0",
         "typescript": "^7.0.2"
     },
     "jest": {
@@ -73,6 +73,6 @@
     "dependencies": {
         "@eliware/common": "^1.1.8",
         "@modelcontextprotocol/sdk": "^1.30.0",
-        "undici": "^6.21.2"
+        "undici": "^8.10.0"
     }
 }
