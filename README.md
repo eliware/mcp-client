@@ -1,6 +1,8 @@
 # [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
 # @eliware/mcp-client [![npm version](https://img.shields.io/npm/v/@eliware/mcp-client.svg)](https://www.npmjs.com/package/@eliware/mcp-client) [![license](https://img.shields.io/github/license/eliware/mcp-client.svg)](LICENSE) [![build status](https://github.com/eliware/mcp-client/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-client/actions)
 
+Documentation: [docs](docs/README.md) · [specifications](specs/README.md) · [examples](examples/README.md)
+
 A pure-ESM Node.js client for standards-compatible Model Context Protocol (MCP) servers.
 
 It uses the official MCP SDK transports and supports Streamable HTTP (recommended), legacy SSE, and stdio. The client manages connection lifecycle and optional reconnects; authentication, OAuth flows, user sessions, and token persistence remain application responsibilities.
