@@ -92,6 +92,7 @@
       "endOfLine": "lf"
     },
     "eliware": {
+      "id": "E-231",
       "apply": ["general", "library", "npm-published"]
     }
 }
