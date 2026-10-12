@@ -1,98 +1,126 @@
 {
-    "name": "@eliware/mcp-client",
-    "type": "module",
-    "version": "1.1.4",
-    "description": "Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.",
-    "types": "index.d.ts",
-    "files": [
-        "index.mjs",
-        "index.d.ts",
-        "README.md",
-        "LICENSE",
-        "examples"
+  "name": "@eliware/mcp-client",
+  "version": "12.0.0",
+  "type": "module",
+  "description": "Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-client",
+    "model-context-protocol-client",
+    "streamable-http",
+    "http",
+    "sse",
+    "stdio",
+    "json-rpc",
+    "oauth2",
+    "bearer-token",
+    "authentication",
+    "token-provider",
+    "reconnect",
+    "typescript",
+    "esm",
+    "nodejs",
+    "ai",
+    "ai-tools",
+    "llm"
+  ],
+  "private": false,
+  "publishConfig": {
+    "provenance": true
+  },
+  "main": "./src/index.mjs",
+  "files": [
+    "src/",
+    "docs/",
+    "README.md",
+    "AGENTS.md",
+    "LICENSE",
+    "RELEASE_NOTES.md",
+    "examples/",
+    "specs/",
+    ".env.example"
+  ],
+  "scripts": {
+    "test": "eliware-test",
+    "lint": "eliware-test --lint",
+    "audit": "eliware-test --audit",
+    "format": "eliware-test --format",
+    "format:check": "eliware-test --format-check",
+    "pack": "eliware-test --pack",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "engines": {
+    "node": ">=26"
+  },
+  "dependencies": {
+    "@eliware/common": "^12.0.1",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "undici": "^8.11.2"
+  },
+  "devDependencies": {
+    "@eliware/test": "^12.0.0",
+    "typescript": "^7.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.mjs"
     ],
-    "exports": {
-        ".": {
-            "import": "./index.mjs",
-            "types": "./index.d.ts"
-        }
-    },
-    "scripts": {
-        "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --coverage --detectOpenHandles --silent --runInBand",
-        "lint": "npx oxlint . --deny-warnings",
-        "test:gaps": "npm test && node scripts/check-coverage.mjs",
-        "typecheck": "tsc --project tsconfig.json",
-        "pack": "npm pack --dry-run"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/eliware/mcp-client.git"
-    },
-    "keywords": [
-        "mcp",
-        "model-context-protocol",
-        "mcp-client",
-        "model-context-protocol-client",
-        "streamable-http",
-        "http",
-        "sse",
-        "stdio",
-        "json-rpc",
-        "oauth2",
-        "bearer-token",
-        "authentication",
-        "token-provider",
-        "reconnect",
-        "typescript",
-        "esm",
-        "nodejs",
-        "ai",
-        "ai-tools",
-        "llm"
+    "collectCoverageFrom": [
+      "src/**/*.mjs"
     ],
-    "author": "Eli Sterling, eliware.org <eli@eliware.org>",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/eliware/mcp-client/issues"
-    },
-    "homepage": "https://github.com/eliware/mcp-client#readme",
-    "devDependencies": {
-        "@eliware/mcp-server": "^1.1.10",
-        "@eliware/test": "^5.0.0",
-        "jest": "^30.4.2",
-        "oxlint": "^1.79.0",
-        "typescript": "^7.0.2"
-    },
-    "jest": {
-        "testEnvironment": "node",
-        "testMatch": [
-            "**/?(*.)+(spec|test).[jt]s?(x)",
-            "**/?(*.)+(spec|test).mjs",
-            "**/?(*.)+(spec|test).cjs"
-        ]
-    },
-    "dependencies": {
-        "@eliware/common": "^1.1.8",
-        "@modelcontextprotocol/sdk": "^1.30.0",
-        "undici": "^8.10.0"
-    },
-    "prettier": {
-      "printWidth": 100,
-      "tabWidth": 2,
-      "useTabs": false,
-      "semi": true,
-      "singleQuote": false,
-      "quoteProps": "as-needed",
-      "jsxSingleQuote": false,
-      "trailingComma": "all",
-      "bracketSpacing": true,
-      "bracketSameLine": false,
-      "arrowParens": "always",
-      "proseWrap": "preserve",
-      "endOfLine": "lf"
-    },
-    "eliware": {
-      "id": "E-231",
-      "apply": ["general", "library", "npm-published"]
+    "coverageReporters": [
+      "text",
+      "json-summary"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
     }
+  },
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "proseWrap": "preserve",
+    "endOfLine": "lf"
+  },
+  "author": "Eliware <eliware@eliware.org>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliware/mcp-client.git"
+  },
+  "homepage": "https://github.com/eliware/mcp-client#readme",
+  "bugs": {
+    "url": "https://github.com/eliware/mcp-client/issues"
+  },
+  "eliware": {
+    "id": "E-211",
+    "apply": [
+      "general",
+      "library",
+      "npm-published"
+    ]
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "types": "./src/index.d.ts"
 }

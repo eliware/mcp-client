@@ -1,0 +1,4 @@
+version: "12.0"
+description: Points to the authoritative repository profile selection.
+source: ../../package.json
+key: eliware.apply

@@ -1,7 +1,7 @@
-import mcpClient from '@eliware/mcp-client';
+import mcpClient from "@eliware/mcp-client";
 
 const client = await mcpClient({
-  url: process.env.MCP_URL ?? 'https://mcp.example.com/mcp',
+  url: process.env.MCP_URL ?? "https://mcp.example.com/mcp",
   tokenProvider: async () => process.env.MCP_TOKEN,
 });
 

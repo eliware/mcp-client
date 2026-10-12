@@ -1,0 +1,31 @@
+version: "12.0"
+description: Defines the scope and supported behavior of the Eliware MCP client.
+requires: []
+conflicts: []
+directives:
+  - id: E-211.0
+    dos:
+      - Connect to MCP servers through Streamable HTTP, legacy SSE, and stdio.
+      - Use the official MCP SDK client and transport classes.
+      - Support bearer tokens, custom headers, and asynchronous token providers.
+      - Provide explicit connection lifecycle methods and optional reconnects.
+      - Keep OAuth flows, user sessions, and token storage in the consuming application.
+      - Validate repository changes with shared Eliware checks.
+    donts:
+      - Do not claim support for transports or authentication flows that the package does not implement.
+      - Do not treat validation as approval to publish, release, or deploy.
+    children:
+      - id: E-211.0.0
+        dos:
+          - Keep public options and return types in the package declarations.
+          - Keep the public entrypoint under src/.
+          - Keep one matching test for each source module.
+        donts:
+          - Do not expose internal helpers unless the public declarations list them.
+      - id: E-211.0.1
+        dos:
+          - Keep tokens, credentials, and private server data out of logs and examples.
+          - Use placeholder values in environment examples.
+          - Keep stdio server logs on stderr.
+        donts:
+          - Do not commit credentials, private URLs, or runtime data.

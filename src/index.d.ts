@@ -1,5 +1,5 @@
 /** Supported official MCP SDK transports. */
-export type McpTransport = 'http' | 'sse' | 'stdio';
+export type McpTransport = "http" | "sse" | "stdio";
 
 /** Options for creating a connected MCP client. */
 export interface McpClientOptions {
@@ -75,10 +75,6 @@ export declare function resolveAuthHeaders(
 ): Record<string, string>;
 
 /** Validates a numeric option against a minimum and fallback value. */
-export declare function numberOption(
-  value: unknown,
-  fallback: number,
-  minimum?: number,
-): number;
+export declare function numberOption(value: unknown, fallback: number, minimum?: number): number;
 
 export default mcpClient;

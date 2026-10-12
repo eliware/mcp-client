@@ -1,4 +1,4 @@
-import mcpClient from '@eliware/mcp-client';
+import mcpClient from "@eliware/mcp-client";
 
 class TestTransport {
   async start() {}
@@ -6,7 +6,7 @@ class TestTransport {
 }
 
 const client = await mcpClient({
-  transport: 'http',
+  transport: "http",
   TransportClass: TestTransport,
 });
 

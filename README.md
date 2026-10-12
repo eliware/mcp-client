@@ -1,206 +1,155 @@
 # [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
-# @eliware/mcp-client [![npm version](https://img.shields.io/npm/v/@eliware/mcp-client.svg)](https://www.npmjs.com/package/@eliware/mcp-client) [![license](https://img.shields.io/github/license/eliware/mcp-client.svg)](LICENSE) [![build status](https://github.com/eliware/mcp-client/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-client/actions)
 
-Documentation: [docs](docs/README.md) · [specifications](specs/README.md) · [examples](examples/README.md)
+## @eliware/mcp-client [![npm](https://img.shields.io/npm/v/@eliware/mcp-client)](https://www.npmjs.com/package/@eliware/mcp-client) [![License](https://img.shields.io/github/license/eliware/mcp-client)](https://github.com/eliware/mcp-client/blob/main/LICENSE) [![CI](https://github.com/eliware/mcp-client/actions/workflows/ci.yaml/badge.svg)](https://github.com/eliware/mcp-client/actions/workflows/ci.yaml)
 
-A pure-ESM Node.js client for standards-compatible Model Context Protocol (MCP) servers.
+Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.
 
-It uses the official MCP SDK transports and supports Streamable HTTP (recommended), legacy SSE, and stdio. The client manages connection lifecycle and optional reconnects; authentication, OAuth flows, user sessions, and token persistence remain application responsibilities.
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Development](#development)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [API](#api)
+- [Packaging](#packaging)
+- [Examples](#examples)
+- [Support](#support)
+- [Links](#links)
+- [License](#license)
 
 ## Features
 
-- Streamable HTTP, SSE, and stdio transports.
-- Bearer tokens, custom headers, and async token providers.
-- Standard MCP SDK `Client` API (`listTools`, `callTool`, resources, prompts, etc.).
-- Bounded exponential reconnect with configurable limits.
-- Explicit `close()`, `disconnect()`, and `reconnect()` lifecycle methods.
-- Injectable client and transport classes for tests and adapters.
-- Pure ESM with TypeScript declarations.
+- Use Streamable HTTP, legacy SSE, or stdio.
+- Set bearer tokens, custom headers, or an async token provider.
+- Call the official MCP SDK client methods.
+- Set reconnect delays and retry limits.
+- Close, disconnect, or reconnect the active client.
+- Inject client and transport classes for adapters and tests.
+- Import the native ESM package and TypeScript declarations.
 
 ## Requirements
 
-- Node.js 26 or newer
-- An MCP server endpoint for live HTTP/SSE use, or a local MCP server command for stdio
+- Use Node.js 26 or later.
+- Provide an MCP endpoint for HTTP or SSE.
+- Provide a local server command for stdio.
 
-## Install
+## Setup
+
+Install the package:
 
 ```bash
 npm install @eliware/mcp-client
 ```
 
-Node.js must support native ESM and the MCP SDK requirements.
+## Usage
 
-## Streamable HTTP
-
-Streamable HTTP is the recommended transport for remote MCP servers. The URL should identify the server's MCP endpoint, normally `/mcp`:
+Connect to a remote MCP server over Streamable HTTP:
 
 ```js
-import mcpClient from '@eliware/mcp-client';
+import mcpClient from "@eliware/mcp-client";
 
 const client = await mcpClient({
-  url: 'https://mcp.example.com/mcp',
+  url: "https://mcp.example.com/mcp",
   token: process.env.MCP_TOKEN,
 });
 
 const { tools } = await client.listTools();
 console.log(tools.map(({ name }) => name));
-console.log(await client.callTool({
-  name: 'echo',
-  arguments: { echoText: 'hello' },
-}));
-
 await client.close();
 ```
 
-If `url` is omitted, `MCP_URL` is used. Otherwise the default is `http://localhost:1234/mcp` (or `MCP_PORT` in place of `1234`).
+The default URL is `http://localhost:1234/mcp`. Set `MCP_URL` or `MCP_PORT` to change it.
+Set `MCP_TOKEN` to provide a default bearer token.
 
-## Authentication
-
-Pass a static bearer token:
-
-```js
-const client = await mcpClient({
-  url: 'https://mcp.example.com/mcp',
-  token: process.env.MCP_TOKEN,
-});
-```
-
-For rotating credentials, provide an async token provider. It is called whenever the client creates a connection, including reconnects:
+Use an async token provider for rotating credentials:
 
 ```js
 const client = await mcpClient({
-  url: 'https://mcp.example.com/mcp',
+  url: "https://mcp.example.com/mcp",
   tokenProvider: async () => getCurrentAccessToken(),
 });
 ```
 
-Additional headers can be supplied with `headers`. When both `token` and an `Authorization` header are provided, the bearer header generated from `token` takes precedence.
+The token provider runs for each connection, including reconnects. A `token` value takes priority over an `Authorization` value in `headers`.
 
-This package does not implement OAuth discovery, PKCE, dynamic client registration, consent, refresh-token storage, or user sessions. Applications may use any OAuth2/OIDC library, then pass the resulting access token through `tokenProvider`. This keeps the client provider-neutral and compatible with standards-based MCP servers.
+The client does not run OAuth discovery, PKCE, client registration, consent, token refresh, or user sessions. Use an OAuth2 or OIDC library, then pass its access token to `tokenProvider`.
 
-## SSE
+Use `transport: 'sse'` only with a server that exposes the legacy SSE endpoint. Use `transport: 'stdio'` with a local server command. Keep server logs on stderr.
 
-Use SSE only for servers that expose the legacy MCP SSE transport:
+Set `reconnect`, `reconnectBaseDelay`, `reconnectMaxDelay`, and `maxReconnectAttempts` to control retries. Use `close()` or `disconnect()` to stop retries. Use `reconnect()` to create a new connection.
 
-```js
-const client = await mcpClient({
-  transport: 'sse',
-  url: 'https://mcp.example.com/sse',
-});
-```
-
-For a server implemented with `@eliware/mcp-server`, the default endpoint is Streamable HTTP at `/mcp`; use `transport: 'http'` unless that server explicitly exposes SSE.
-
-## stdio
-
-stdio launches a local MCP server as a child process. MCP JSON-RPC uses stdin/stdout, so the server must write logs to stderr:
-
-```js
-const client = await mcpClient({
-  transport: 'stdio',
-  command: process.execPath,
-  args: ['/path/to/server.mjs', '--stdio'],
-  env: { MCP_TOKEN: process.env.MCP_TOKEN ?? '' },
-});
-
-console.log(await client.listTools());
-await client.close();
-```
-
-`command` is required for stdio. `args` and `env` are passed to the child process.
-
-## Reconnect and lifecycle
-
-Reconnect is enabled by default. Configure it as needed:
-
-```js
-const client = await mcpClient({
-  reconnect: true,
-  reconnectBaseDelay: 1000,
-  reconnectMaxDelay: 60000,
-  maxReconnectAttempts: 10,
-});
-```
-
-Transport `close` and `error` events schedule reconnects. `close()` and its alias `disconnect()` stop reconnect attempts and close the active transport. `reconnect()` explicitly closes and creates a new connection.
-
-For advanced integrations, `client.mcpConnection.transport` exposes the active SDK transport. Prefer the normal MCP client methods unless direct transport access is required.
-
-## Configuration reference
-
-`mcpClient(options)` accepts:
-
-- `url` — MCP endpoint URL; defaults to `MCP_URL` or `http://localhost:${MCP_PORT || 1234}/mcp`.
-- `transport` — `http` (default), `sse`, or `stdio`.
-- `token` — static bearer token.
-- `tokenProvider` — function returning a token or `undefined`.
-- `headers` — additional request headers for HTTP/SSE.
-- `command`, `args`, `env` — stdio child-process configuration.
-- `clientInfo` — MCP client name/version sent to the server.
-- `capabilities` — MCP client capabilities.
-- `log` — optional `debug`, `error`, and `warn` functions.
-- `reconnect` — enable/disable automatic reconnect; defaults to `true`.
-- `reconnectBaseDelay` — initial delay in milliseconds; defaults to `1000`.
-- `reconnectMaxDelay` — maximum delay in milliseconds; defaults to `60000`.
-- `maxReconnectAttempts` — retry limit; defaults to unlimited.
-- `ClientClass`, `TransportClass`, `HTTPTransportClass`, `SSETransportClass`, `StdioTransportClass` — injectable SDK classes for tests/adapters.
-
-## Examples
-
-Focused examples are in `examples/`:
-
-- `http.mjs` — recommended Streamable HTTP transport.
-- `sse.mjs` — legacy SSE transport.
-- `stdio.mjs` — local child-process server.
-- `static-token.mjs` — static bearer token.
-- `token-provider.mjs` — rotating/async token provider.
-- `custom-headers.mjs` — custom request headers.
-- `reconnect.mjs` — reconnect policy.
-- `injected-transport.mjs` — dependency-injected transport for adapters/tests.
-
-Run one with:
-
-```bash
-MCP_URL=http://localhost:1234/mcp node examples/http.mjs
-```
-
-Examples are documentation and are included in the npm package; they are not imported by the library.
-
-## Errors / Troubleshooting
-
-Connection and transport failures are surfaced to the caller and optional logger. Use `close()` or `disconnect()` to stop reconnect attempts and release transports. Keep stdio server logs on stderr, and do not expose bearer tokens, credential-bearing URLs, or sensitive tool data.
+Read the [documentation index](docs/README.md), [usage](docs/usage.md), [troubleshooting](docs/troubleshooting.md), [specifications](specs/README.md), and [release notes](RELEASE_NOTES.md) for more detail.
 
 ## Development
 
+Install locked dependencies:
+
 ```bash
-npm install
-npm run lint
-npm test
-npm run test:gaps
-npm run lint
-npm run typecheck
-npm pack --dry-run
+npm ci
 ```
 
-The test suite covers all public helpers, transport selection, reconnect behavior, and a real stdio integration using `@eliware/mcp-server` as a development dependency. The package tarball contains only the runtime module, declarations, examples, README, and license.
+Use Node.js 26 or later and npm 12 or later for repository validation.
+
+## Testing
+
+Run aggregate validation:
+
+```bash
+npm test
+```
+
+Run lint, format, audit, package, or type checks with `npm run lint`, `npm run format:check`, `npm run audit`, `npm run pack`, or `npm run typecheck`.
+
+## Troubleshooting
+
+Check the server URL and transport type. Check the required server permission. Check that the stdio server writes logs to stderr.
+
+Run `npm test` after a source change. Read [troubleshooting](docs/troubleshooting.md) for common connection failures.
 
 ## Security
 
-Keep MCP tokens, OAuth credentials, private URLs, and child-process environment secrets in secure configuration. Use HTTPS for remote deployments and treat tool arguments/results as potentially sensitive.
+Keep tokens and OAuth credentials in secure configuration. Use HTTPS for remote servers.
+Treat tool arguments and results as sensitive data. Do not log secrets or credential-bearing URLs.
 
-## License
+## API
 
-MIT © Eli Sterling, eliware.org
+`mcpClient(options)` connects to an MCP server and returns an initialized SDK client. The result also provides `close()`, `disconnect()`, `reconnect()`, and `mcpConnection.transport`.
+
+The options include `url`, `transport`, `token`, `tokenProvider`, `headers`, `command`, `args`, `env`, `clientInfo`, `capabilities`, `log`, reconnect settings, and injectable SDK classes.
+
+Import `McpClientOptions`, `ConnectedMcpClient`, and `McpTransport` from the TypeScript declarations. Read [src/index.d.ts](src/index.d.ts) for full option types.
+
+## Packaging
+
+The npm package includes `src/`, `docs/`, `examples/`, `specs/`, this README, `AGENTS.md`, `LICENSE`, `RELEASE_NOTES.md`, and `.env.example`.
+
+The package does not include tests, fixtures, workflows, or lockfiles. Run `npm run pack` to check package contents.
+
+## Examples
+
+Read the [examples index](examples/README.md) for prerequisites, commands, results, permissions, and cleanup steps.
 
 ## Support
 
-For help, questions, or community chat:
+For help, questions, or to chat with the author and community, visit:
 
-[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)
+[![Discord](https://eliware.org/logos/discord_96.png)](https://discord.gg/M6aTR9eTwN)[![eliware.org](https://eliware.org/logos/eliware_96.png)](https://discord.gg/M6aTR9eTwN)
+
+**[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)**
 
 ## Links
 
 - [Home Page](https://eliware.org)
-- [GitHub Repo](https://github.com/eliware/mcp-client)
 - [GitHub Org](https://github.com/eliware)
+- [GitHub Repo](https://github.com/eliware/mcp-client)
+- [Bug Reports](https://github.com/eliware/mcp-client/issues)
+- [npm](https://www.npmjs.com/package/@eliware/mcp-client)
 - [Discord](https://discord.gg/M6aTR9eTwN)
+
+## License
+
+[MIT © Eliware](LICENSE)
