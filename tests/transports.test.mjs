@@ -67,6 +67,21 @@ test("creates a stdio transport", () => {
   expect(transport.options).toEqual({ command: "node", args: ["x"], env: { A: "1" } });
 });
 
+test("creates an injected stdio transport with process options", () => {
+  const transport = createTransport({
+    transport: "stdio",
+    command: "node",
+    args: ["server.mjs"],
+    env: { MODE: "test" },
+    TransportClass: Stdio,
+  });
+  expect(transport.options).toEqual({
+    command: "node",
+    args: ["server.mjs"],
+    env: { MODE: "test" },
+  });
+});
+
 test("constructs native SDK transports", async () => {
   const http = createTransport({ transport: "http", url: "https://x/mcp" });
   const sse = createTransport({ transport: "sse", url: "https://x/sse" });

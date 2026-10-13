@@ -1,3 +1,9 @@
+export async function rejectReconnectDuringClose(closing, closePromise) {
+  if (!closing) return;
+  await closePromise;
+  throw new Error("Cannot reconnect while close is in progress");
+}
+
 export function createReconnect({
   connect,
   isClosed,

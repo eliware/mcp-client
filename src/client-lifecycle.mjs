@@ -1,5 +1,4 @@
-import { createReconnect } from "./reconnect.mjs";
-
+import { createReconnect, rejectReconnectDuringClose } from "./reconnect.mjs";
 export function createClientLifecycle({
   connect,
   getTransport,
@@ -13,6 +12,7 @@ export function createClientLifecycle({
 }) {
   let closed = false;
   let closePromise;
+  const closeState = { closing: false };
   let reconnectPromise;
   const retry = createReconnect({
     connect,
@@ -26,6 +26,7 @@ export function createClientLifecycle({
   const close = () => {
     if (closePromise) return closePromise;
     closed = true;
+    closeState.closing = true;
     retry.clear();
     closePromise = (async () => {
       try {
@@ -35,6 +36,7 @@ export function createClientLifecycle({
           await closeDispatcher?.();
         } finally {
           clearTransport?.();
+          closeState.closing = false;
         }
       }
     })();
@@ -49,6 +51,7 @@ export function createClientLifecycle({
   };
   const reconnectClient = async () => {
     retry.clear();
+    await rejectReconnectDuringClose(closeState.closing, closePromise);
     if (closePromise) await closePromise;
     if (!closed) {
       closed = true;

@@ -17,6 +17,11 @@ export function createTransport({
   SSETransportClass = SSEClientTransport,
   StdioTransportClass = StdioClientTransport,
 }) {
+  if (transport === "stdio") {
+    if (!command) throw new Error("stdio transport requires command");
+    const StdioClass = TransportClass ?? StdioTransportClass;
+    return new StdioClass({ command, args, env });
+  }
   if (TransportClass) {
     return new TransportClass(url, {
       requestInit: {
@@ -24,10 +29,6 @@ export function createTransport({
         ...(dispatcher ? { dispatcher } : {}),
       },
     });
-  }
-  if (transport === "stdio") {
-    if (!command) throw new Error("stdio transport requires command");
-    return new StdioTransportClass({ command, args, env });
   }
   const options = {
     requestInit: {

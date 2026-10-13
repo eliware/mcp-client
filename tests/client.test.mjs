@@ -103,6 +103,30 @@ test("supports the reconnect lifecycle", async () => {
   await reopened.close();
 });
 
+test("does not reconnect while the client closes", async () => {
+  let finishClose;
+  class SlowCloseTransport extends MockTransport {
+    close = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          finishClose = resolve;
+        }),
+    );
+  }
+  const client = await mcpClient({
+    reconnect: false,
+    ClientClass: MockClient,
+    TransportClass: SlowCloseTransport,
+  });
+  const closePromise = client.close();
+  const reconnectPromise = client.reconnect();
+  finishClose();
+  await closePromise;
+  await expect(reconnectPromise).rejects.toThrow("Cannot reconnect while close is in progress");
+  expect(connect).toHaveBeenCalledTimes(1);
+  expect(client.mcpConnection.transport).toBeUndefined();
+});
+
 test("rejects stdio without a command", async () => {
   await expect(mcpClient({ transport: "stdio", ClientClass: MockClient })).rejects.toThrow(
     "stdio transport requires command",

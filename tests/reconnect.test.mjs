@@ -1,5 +1,5 @@
 import { afterEach, expect, jest, test } from "@jest/globals";
-import { createReconnect } from "../src/reconnect.mjs";
+import { createReconnect, rejectReconnectDuringClose } from "../src/reconnect.mjs";
 
 afterEach(() => {
   jest.useRealTimers();
@@ -82,4 +82,12 @@ test("allows retries after reset", async () => {
   retry.schedule();
   expect(jest.getTimerCount()).toBe(1);
   retry.clear();
+});
+
+test("rejects a reconnect request while close is in progress", async () => {
+  const closePromise = Promise.resolve();
+  await expect(rejectReconnectDuringClose(true, closePromise)).rejects.toThrow(
+    "Cannot reconnect while close is in progress",
+  );
+  await expect(rejectReconnectDuringClose(false, closePromise)).resolves.toBeUndefined();
 });
