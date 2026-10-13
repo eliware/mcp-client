@@ -3,7 +3,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { Agent } from "undici";
 import packageMeta from "../package.json" with { type: "json" };
 import { assertOpen, normalizeOptions, numberOption } from "./options.mjs";
-import { createReconnect } from "./reconnect.mjs";
+import { createClientLifecycle } from "./client-lifecycle.mjs";
 import { createClientTransport } from "./transports.mjs";
 
 export function resolveClientClass(ClientClass) {
@@ -32,7 +32,6 @@ export async function mcpClient(options) {
   } = normalizeOptions(options);
   let client;
   let activeTransport;
-  let closed = false;
   const ClientImplementation = resolveClientClass(ClientClass);
   const dispatcher =
     forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
@@ -40,23 +39,21 @@ export async function mcpClient(options) {
   const getToken = async () => (tokenProvider ? tokenProvider() : (token ?? process.env.MCP_TOKEN));
 
   const connect = async () => {
-    assertOpen(closed);
+    assertOpen(lifecycle.isClosed());
     const authToken = await getToken();
     client = new ClientImplementation(clientInfo, { capabilities });
     activeTransport = createClientTransport(normalizeOptions(options), authToken, dispatcher);
     await client.connect(activeTransport);
-    retry.reset();
+    lifecycle.reset();
     log.debug?.(`MCP client connected (${transport})`);
-    if (typeof activeTransport.on === "function") {
-      activeTransport.on("close", retry.schedule);
-      activeTransport.on("error", retry.schedule);
-    }
+    lifecycle.bind(activeTransport);
     return client;
   };
 
-  const retry = createReconnect({
+  const lifecycle = createClientLifecycle({
     connect,
-    isClosed: () => closed,
+    getTransport: () => activeTransport,
+    dispatcher,
     enabled: reconnect,
     baseDelay: reconnectBaseDelay,
     maxDelay: reconnectMaxDelay,
@@ -64,31 +61,7 @@ export async function mcpClient(options) {
     log,
   });
   const connected = await connect();
-  const close = async () => {
-    closed = true;
-    retry.clear();
-    await activeTransport?.close?.();
-    await dispatcher?.close();
-  };
-  const reconnectNow = async () => {
-    closed = false;
-    await activeTransport?.close?.();
-    return connect();
-  };
-  Object.defineProperties(connected, {
-    close: { value: close },
-    disconnect: { value: close },
-    reconnect: { value: reconnectNow },
-    mcpConnection: {
-      value: {
-        get transport() {
-          return activeTransport;
-        },
-        close,
-      },
-    },
-  });
-  return connected;
+  return lifecycle.attach(connected);
 }
 
 export default mcpClient;

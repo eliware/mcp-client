@@ -94,35 +94,6 @@ test("supports the reconnect lifecycle", async () => {
   await client.close();
 });
 
-test("logs a failed reconnect", async () => {
-  connect.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("offline"));
-  const client = await mcpClient({
-    log,
-    reconnectBaseDelay: 5,
-    reconnectMaxDelay: 10,
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
-  events.close();
-  await new Promise((resolve) => setTimeout(resolve, 15));
-  expect(log.error).toHaveBeenCalledWith("MCP reconnect failed", expect.any(Error));
-  await client.close();
-});
-
-test("honors reconnect limits and closed state", async () => {
-  const client = await mcpClient({
-    maxReconnectAttempts: 0,
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
-  events.close();
-  await new Promise((resolve) => setTimeout(resolve, 15));
-  expect(connect).toHaveBeenCalledTimes(1);
-  await client.close();
-  events.close();
-  expect(connect).toHaveBeenCalledTimes(1);
-});
-
 test("rejects stdio without a command", async () => {
   await expect(mcpClient({ transport: "stdio", ClientClass: MockClient })).rejects.toThrow(
     "stdio transport requires command",

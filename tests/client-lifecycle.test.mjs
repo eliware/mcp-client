@@ -1,0 +1,68 @@
+import { expect, jest, test } from "@jest/globals";
+import { createClientLifecycle } from "../src/client-lifecycle.mjs";
+
+test("binds transport events and schedules a reconnect", async () => {
+  jest.useFakeTimers();
+  const listeners = {};
+  const connect = jest.fn();
+  const lifecycle = createClientLifecycle({
+    connect,
+    getTransport: () => undefined,
+    enabled: true,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  lifecycle.bind({ on: (name, listener) => (listeners[name] = listener) });
+  lifecycle.reset();
+  listeners.close();
+  listeners.error();
+  await jest.advanceTimersByTimeAsync(5);
+  expect(connect).toHaveBeenCalledTimes(1);
+  jest.useRealTimers();
+});
+
+test("attaches and closes client lifecycle methods", async () => {
+  const transport = { close: jest.fn() };
+  const dispatcher = { close: jest.fn() };
+  const connect = jest.fn().mockResolvedValue("reconnected");
+  const lifecycle = createClientLifecycle({
+    connect,
+    getTransport: () => transport,
+    dispatcher,
+    enabled: false,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  const client = lifecycle.attach({});
+  expect(client.mcpConnection.transport).toBe(transport);
+  expect(client.mcpConnection.close).toBe(client.close);
+  expect(lifecycle.isClosed()).toBe(false);
+  await client.close();
+  expect(lifecycle.isClosed()).toBe(true);
+  expect(transport.close).toHaveBeenCalledTimes(1);
+  expect(dispatcher.close).toHaveBeenCalledTimes(1);
+  await client.disconnect();
+  expect(transport.close).toHaveBeenCalledTimes(2);
+  expect(await client.reconnect()).toBe("reconnected");
+  expect(lifecycle.isClosed()).toBe(false);
+  expect(transport.close).toHaveBeenCalledTimes(3);
+  await client.mcpConnection.close();
+  expect(lifecycle.isClosed()).toBe(true);
+});
+
+test("binds no listeners for a transport without events", () => {
+  const lifecycle = createClientLifecycle({
+    connect: jest.fn(),
+    getTransport: () => undefined,
+    enabled: false,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  expect(() => lifecycle.bind({})).not.toThrow();
+});
