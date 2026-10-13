@@ -27,6 +27,7 @@
   ],
   "private": false,
   "publishConfig": {
+    "access": "public",
     "provenance": true
   },
   "main": "./src/index.mjs",
