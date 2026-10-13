@@ -23,12 +23,17 @@ export function createClientLifecycle({
   const close = async () => {
     closed = true;
     retry.clear();
-    await getTransport()?.close?.();
-    await dispatcher?.close();
+    try {
+      await getTransport()?.close?.();
+    } finally {
+      await dispatcher?.close();
+    }
   };
   const reconnect = async () => {
-    closed = false;
+    retry.clear();
+    closed = true;
     await getTransport()?.close?.();
+    closed = false;
     return connect();
   };
   return {

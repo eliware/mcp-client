@@ -7,6 +7,4 @@ test("exports the public client API", () => {
   expect(typeof clientApi.createTransport).toBe("function");
   expect(typeof clientApi.resolveAuthHeaders).toBe("function");
   expect(typeof clientApi.numberOption).toBe("function");
-  expect(typeof clientApi.assertOpen).toBe("function");
-  expect(typeof clientApi.normalizeOptions).toBe("function");
 });

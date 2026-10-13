@@ -16,7 +16,8 @@ export function createReconnect({
     delay = baseDelay;
   };
   const clear = () => {
-    if (timer) clearTimeout(timer);
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
   };
   const schedule = () => {
     if (isClosed() || !enabled || timer || attempts >= maxAttempts) return;

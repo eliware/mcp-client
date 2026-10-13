@@ -1,5 +1,9 @@
-import { expect, jest, test } from "@jest/globals";
+import { afterEach, expect, jest, test } from "@jest/globals";
 import { createClientLifecycle } from "../src/client-lifecycle.mjs";
+
+afterEach(() => {
+  jest.useRealTimers();
+});
 
 test("binds transport events and schedules a reconnect", async () => {
   jest.useFakeTimers();
@@ -20,7 +24,6 @@ test("binds transport events and schedules a reconnect", async () => {
   listeners.error();
   await jest.advanceTimersByTimeAsync(5);
   expect(connect).toHaveBeenCalledTimes(1);
-  jest.useRealTimers();
 });
 
 test("attaches and closes client lifecycle methods", async () => {
@@ -52,6 +55,55 @@ test("attaches and closes client lifecycle methods", async () => {
   expect(transport.close).toHaveBeenCalledTimes(3);
   await client.mcpConnection.close();
   expect(lifecycle.isClosed()).toBe(true);
+});
+
+test("clears a pending retry before a manual reconnect", async () => {
+  jest.useFakeTimers();
+  const listeners = {};
+  let lifecycle;
+  const transport = {
+    on: (name, listener) => (listeners[name] = listener),
+    close: jest.fn(() => listeners.close()),
+  };
+  const connect = jest.fn(() => {
+    lifecycle.reset();
+    return Promise.resolve("reconnected");
+  });
+  lifecycle = createClientLifecycle({
+    connect,
+    getTransport: () => transport,
+    enabled: true,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 2,
+    log: {},
+  });
+  lifecycle.bind(transport);
+  const client = lifecycle.attach({});
+  listeners.close();
+  expect(jest.getTimerCount()).toBe(1);
+  await client.reconnect();
+  expect(jest.getTimerCount()).toBe(0);
+  await jest.advanceTimersByTimeAsync(10);
+  expect(connect).toHaveBeenCalledTimes(1);
+});
+
+test("closes the dispatcher when transport close fails", async () => {
+  const dispatcher = { close: jest.fn() };
+  const transport = { close: jest.fn().mockRejectedValue(new Error("transport close failed")) };
+  const lifecycle = createClientLifecycle({
+    connect: jest.fn(),
+    getTransport: () => transport,
+    dispatcher,
+    enabled: false,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  const client = lifecycle.attach({});
+  await expect(client.close()).rejects.toThrow("transport close failed");
+  expect(dispatcher.close).toHaveBeenCalledTimes(1);
 });
 
 test("binds no listeners for a transport without events", () => {

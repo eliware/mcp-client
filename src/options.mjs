@@ -8,14 +8,10 @@ export async function resolveToken({ token, tokenProvider }) {
 }
 
 export function resolveReconnectDelays(baseDelay, maxDelay) {
-  const resolvedBaseDelay =
-    baseDelay === undefined
-      ? numberOption(process.env.MCP_RECONNECT_BASE_DELAY, 1000, 0)
-      : baseDelay;
-  const resolvedMaxDelay =
-    maxDelay === undefined
-      ? numberOption(process.env.MCP_RECONNECT_MAX_DELAY, 60000, resolvedBaseDelay)
-      : maxDelay;
+  const baseValue = baseDelay === undefined ? process.env.MCP_RECONNECT_BASE_DELAY : baseDelay;
+  const resolvedBaseDelay = numberOption(baseValue, 1000, 0);
+  const maxValue = maxDelay === undefined ? process.env.MCP_RECONNECT_MAX_DELAY : maxDelay;
+  const resolvedMaxDelay = numberOption(maxValue, 60000, resolvedBaseDelay);
   return { baseDelay: resolvedBaseDelay, maxDelay: resolvedMaxDelay };
 }
 

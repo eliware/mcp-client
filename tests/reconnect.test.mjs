@@ -13,13 +13,16 @@ test("schedules and clears a reconnect timer", () => {
     enabled: true,
     baseDelay: 10,
     maxDelay: 20,
-    maxAttempts: 1,
+    maxAttempts: 2,
     log: {},
   });
   retry.schedule();
   expect(jest.getTimerCount()).toBe(1);
   retry.clear();
   expect(jest.getTimerCount()).toBe(0);
+  retry.schedule();
+  expect(jest.getTimerCount()).toBe(1);
+  retry.clear();
 });
 
 test("logs a failed reconnect and schedules the next attempt", async () => {

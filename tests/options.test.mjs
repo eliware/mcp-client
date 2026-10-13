@@ -55,3 +55,9 @@ test("uses safe reconnect delay defaults for invalid environment values", () => 
   process.env.MCP_RECONNECT_MAX_DELAY = "100";
   expect(resolveReconnectDelays()).toEqual({ baseDelay: 250, maxDelay: 60000 });
 });
+
+test("validates explicit reconnect delay values", () => {
+  expect(resolveReconnectDelays(-1, -1)).toEqual({ baseDelay: 1000, maxDelay: 60000 });
+  expect(resolveReconnectDelays(10, 5)).toEqual({ baseDelay: 10, maxDelay: 60000 });
+  expect(resolveReconnectDelays(0, 0)).toEqual({ baseDelay: 0, maxDelay: 0 });
+});
