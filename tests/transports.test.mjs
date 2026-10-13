@@ -1,5 +1,5 @@
 import { expect, test } from "@jest/globals";
-import { createClientTransport, createTransport, resolveAuthHeaders } from "../src/transports.mjs";
+import { createClientTransport, createTransport } from "../src/transports.mjs";
 
 class HTTP {
   constructor(url, options) {
@@ -15,10 +15,6 @@ class Stdio {
     this.options = options;
   }
 }
-
-test("preserves custom headers without a token", () => {
-  expect(resolveAuthHeaders(undefined, { a: "b" })).toEqual({ a: "b" });
-});
 
 test("creates an injected transport with a bearer token", () => {
   const transport = createTransport({ TransportClass: HTTP, url: "http://x", token: "t" });

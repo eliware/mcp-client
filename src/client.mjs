@@ -2,7 +2,7 @@ import { log as defaultLog } from "@eliware/common";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { Agent } from "undici";
 import packageMeta from "../package.json" with { type: "json" };
-import { assertOpen, normalizeOptions, numberOption } from "./options.mjs";
+import { assertOpen, normalizeOptions, resolveReconnectDelays, resolveToken } from "./options.mjs";
 import { createClientLifecycle } from "./client-lifecycle.mjs";
 import { createClientTransport } from "./transports.mjs";
 
@@ -21,22 +21,20 @@ export async function mcpClient(options) {
     capabilities = { sampling: {} },
     ClientClass,
     reconnect = true,
-    reconnectBaseDelay = numberOption(process.env.MCP_RECONNECT_BASE_DELAY, 1000, 0),
-    reconnectMaxDelay = numberOption(
-      process.env.MCP_RECONNECT_MAX_DELAY,
-      60000,
-      reconnectBaseDelay,
-    ),
     maxReconnectAttempts = Infinity,
     forceIPv4 = process.platform === "win32",
   } = normalizeOptions(options);
+  const { baseDelay, maxDelay } = resolveReconnectDelays(
+    options?.reconnectBaseDelay,
+    options?.reconnectMaxDelay,
+  );
   let client;
   let activeTransport;
   const ClientImplementation = resolveClientClass(ClientClass);
   const dispatcher =
     forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
 
-  const getToken = async () => (tokenProvider ? tokenProvider() : (token ?? process.env.MCP_TOKEN));
+  const getToken = () => resolveToken({ token, tokenProvider });
 
   const connect = async () => {
     assertOpen(lifecycle.isClosed());
@@ -55,8 +53,8 @@ export async function mcpClient(options) {
     getTransport: () => activeTransport,
     dispatcher,
     enabled: reconnect,
-    baseDelay: reconnectBaseDelay,
-    maxDelay: reconnectMaxDelay,
+    baseDelay,
+    maxDelay,
     maxAttempts: maxReconnectAttempts,
     log,
   });

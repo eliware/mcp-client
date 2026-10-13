@@ -1,10 +1,7 @@
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-
-export function resolveAuthHeaders(token, headers = {}) {
-  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
-}
+import { resolveAuthHeaders } from "./auth-headers.mjs";
 
 export function createTransport({
   transport,
