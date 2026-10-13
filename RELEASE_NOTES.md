@@ -1,26 +1,43 @@
 # Release Notes
 
-## 12.0.0 — 2026-10-12
+## 12.0.0 — 2026-10-13
 
 ### Added
 
-Added usage, API, and troubleshooting guides. Added repository specifications, shared validation, and standard CI and package publication workflows.
-Added the standard Knit deployment workflow and an index for the supported examples.
+- Add guides for use, the API, and fault diagnosis.
+- Add examples for HTTP, SSE, stdio, headers, tokens, and reconnects.
+- Add repository rules, shared validation, CI, package publication, and Knit workflows.
+- Add `@eliware/mcp-server` as a package dependency.
+- Add injectable client and transport classes for tests and adapters.
+- Add TypeScript declarations and explicit package exports.
 
 ### Changed
 
-Raised the package version to 12.0.0 and the minimum Node.js version to 26. Moved source modules and declarations under `src/`.
-Set explicit package exports. Updated dependencies, package metadata, examples, and release records to Eliware Convention 12.0.
-Split client logic into focused modules and added matching tests with full coverage checks. Replaced local checks with shared Eliware validation.
+- Require Node.js 26 or later and native ESM.
+- Move source files and declarations under `src/`.
+- Use the official MCP SDK for Streamable HTTP, SSE, and stdio transports.
+- Split client, lifecycle, reconnect, options, transport, and header logic into focused modules.
+- Update examples, package metadata, license details, and dependency versions.
+- Apply Eliware Convention 12 and shared validation rules.
 
 ### Fixed
 
-Added Windows IPv4 support for HTTP and SSE connections. Improved reconnect handling and validation for numeric options.
+- Support IPv4 connections on Windows for HTTP and SSE transports.
+- Keep SDK methods available through manual and automatic reconnects.
+- Close failed initial connections and failed reconnect transports.
+- Keep transport state clear when close interrupts a connection.
+- Reject reconnect attempts while close is in progress.
+- Validate reconnect delay and attempt options.
 
 ### Breaking changes
 
-Require Node.js 26 or later. Import the package through its public package entrypoint.
+- Require Node.js 26 or later.
+- Import the package through `@eliware/mcp-client`. Old root file imports no longer work.
+- Use the official SDK client methods through the package facade.
 
 ### Migration
 
-Install the 12.0.0 package. Replace direct imports of old source paths with imports from `@eliware/mcp-client`.
+1. Install version 12.0.0.
+2. Use Node.js 26 or later.
+3. Replace old root file imports with `@eliware/mcp-client`.
+4. Review the usage guide and update connection options.
