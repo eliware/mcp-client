@@ -42,7 +42,13 @@ export async function mcpClient(options) {
     dispatcher ??=
       forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
     activeTransport = createClientTransport(normalizeOptions(options), authToken, dispatcher);
-    await client.connect(activeTransport);
+    const connectingTransport = activeTransport;
+    await client.connect(connectingTransport);
+    if (lifecycle.isClosed()) {
+      await connectingTransport.close?.();
+      activeTransport = undefined;
+      throw new Error("Client closed during connection");
+    }
     lifecycle.reset();
     log.debug?.(`MCP client connected (${transport})`);
     lifecycle.bind(activeTransport);

@@ -127,6 +127,28 @@ test("does not reconnect while the client closes", async () => {
   expect(client.mcpConnection.transport).toBeUndefined();
 });
 
+test("closes a transport when close interrupts its connection", async () => {
+  let finishConnect;
+  connect
+    .mockImplementationOnce(() => Promise.resolve())
+    .mockImplementationOnce(() => new Promise((resolve) => (finishConnect = resolve)));
+  const client = await mcpClient({
+    reconnect: false,
+    ClientClass: MockClient,
+    TransportClass: MockTransport,
+  });
+  const reconnectPromise = client.reconnect();
+  await new Promise((resolve) => setImmediate(resolve));
+  const connectingTransport = client.mcpConnection.transport;
+  connectingTransport.close.mockRejectedValueOnce(new Error("close failed"));
+  const closePromise = client.close();
+  await expect(closePromise).rejects.toThrow("close failed");
+  finishConnect();
+  await expect(reconnectPromise).rejects.toThrow("Client closed during connection");
+  expect(connectingTransport.close).toHaveBeenCalled();
+  expect(client.mcpConnection.transport).toBeUndefined();
+});
+
 test("rejects stdio without a command", async () => {
   await expect(mcpClient({ transport: "stdio", ClientClass: MockClient })).rejects.toThrow(
     "stdio transport requires command",

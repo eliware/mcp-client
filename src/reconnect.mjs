@@ -1,7 +1,22 @@
-export async function rejectReconnectDuringClose(closing, closePromise) {
-  if (!closing) return;
-  await closePromise;
-  throw new Error("Cannot reconnect while close is in progress");
+export function createTransportBinding(schedule) {
+  let unbindCurrent;
+  const unbind = () => {
+    unbindCurrent?.();
+    unbindCurrent = undefined;
+  };
+  const bind = (transport) => {
+    unbind();
+    if (typeof transport.on !== "function") return;
+    const handler = () => schedule();
+    transport.on("close", handler);
+    transport.on("error", handler);
+    unbindCurrent = () => {
+      const remove = transport.off ?? transport.removeListener;
+      remove?.call(transport, "close", handler);
+      remove?.call(transport, "error", handler);
+    };
+  };
+  return { bind, unbind };
 }
 
 export function createReconnect({
@@ -33,8 +48,10 @@ export function createReconnect({
       try {
         await connect();
       } catch (error) {
-        log.error?.("MCP reconnect failed", error);
-        schedule();
+        if (!isClosed()) {
+          log.error?.("MCP reconnect failed", error);
+          schedule();
+        }
       }
     }, delay);
     delay = Math.min(Math.max(delay * 2, baseDelay), maxDelay);

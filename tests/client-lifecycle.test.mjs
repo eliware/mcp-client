@@ -146,6 +146,8 @@ test("cleans up and closes the lifecycle when reconnect fails", async () => {
   expect(client.mcpConnection.transport).toBeUndefined();
   expect(closeDispatcher).toHaveBeenCalledTimes(1);
   expect(dispatcher.close).toHaveBeenCalledTimes(1);
+  await expect(client.reconnect()).rejects.toThrow("dispatcher close failed");
+  expect(connect).toHaveBeenCalledTimes(1);
 });
 
 test("shares one promise across concurrent reconnect calls", async () => {

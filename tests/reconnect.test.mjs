@@ -1,5 +1,5 @@
 import { afterEach, expect, jest, test } from "@jest/globals";
-import { createReconnect, rejectReconnectDuringClose } from "../src/reconnect.mjs";
+import { createReconnect, createTransportBinding } from "../src/reconnect.mjs";
 
 afterEach(() => {
   jest.useRealTimers();
@@ -84,10 +84,37 @@ test("allows retries after reset", async () => {
   retry.clear();
 });
 
-test("rejects a reconnect request while close is in progress", async () => {
-  const closePromise = Promise.resolve();
-  await expect(rejectReconnectDuringClose(true, closePromise)).rejects.toThrow(
-    "Cannot reconnect while close is in progress",
-  );
-  await expect(rejectReconnectDuringClose(false, closePromise)).resolves.toBeUndefined();
+test("removes old transport listeners when it binds a new transport", () => {
+  const first = { off: jest.fn(), on: jest.fn() };
+  const second = { off: jest.fn(), on: jest.fn() };
+  const binding = createTransportBinding(jest.fn());
+  binding.bind(first);
+  binding.bind(second);
+  expect(first.off).toHaveBeenCalledWith("close", expect.any(Function));
+  expect(first.off).toHaveBeenCalledWith("error", expect.any(Function));
+  binding.unbind();
+  expect(second.off).toHaveBeenCalledWith("close", expect.any(Function));
+  expect(second.off).toHaveBeenCalledWith("error", expect.any(Function));
+});
+
+test("does not schedule another retry after close during a connection attempt", async () => {
+  jest.useFakeTimers();
+  let failConnect;
+  let closed = false;
+  const retry = createReconnect({
+    connect: () => new Promise((resolve, reject) => (failConnect = reject)),
+    isClosed: () => closed,
+    enabled: true,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 2,
+    log: { error: jest.fn() },
+  });
+  retry.schedule();
+  jest.advanceTimersByTime(5);
+  await Promise.resolve();
+  closed = true;
+  failConnect(new Error("closed"));
+  await Promise.resolve();
+  expect(jest.getTimerCount()).toBe(0);
 });

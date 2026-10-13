@@ -1,4 +1,4 @@
-import { createReconnect, rejectReconnectDuringClose } from "./reconnect.mjs";
+import { createReconnect, createTransportBinding } from "./reconnect.mjs";
 export function createClientLifecycle({
   connect,
   getTransport,
@@ -10,24 +10,25 @@ export function createClientLifecycle({
   maxAttempts,
   log,
 }) {
-  let closed = false;
   let closePromise;
-  const closeState = { closing: false };
+  const state = { closed: false, closing: false };
   let reconnectPromise;
   const retry = createReconnect({
     connect,
-    isClosed: () => closed,
+    isClosed: () => state.closed,
     enabled,
     baseDelay,
     maxDelay,
     maxAttempts,
     log,
   });
+  const binding = createTransportBinding(retry.schedule);
   const close = () => {
     if (closePromise) return closePromise;
-    closed = true;
-    closeState.closing = true;
+    state.closed = true;
+    state.closing = true;
     retry.clear();
+    binding.unbind();
     closePromise = (async () => {
       try {
         await getTransport()?.close?.();
@@ -36,7 +37,7 @@ export function createClientLifecycle({
           await closeDispatcher?.();
         } finally {
           clearTransport?.();
-          closeState.closing = false;
+          state.closing = false;
         }
       }
     })();
@@ -51,23 +52,26 @@ export function createClientLifecycle({
   };
   const reconnectClient = async () => {
     retry.clear();
-    await rejectReconnectDuringClose(closeState.closing, closePromise);
+    if (state.closing) throw new Error("Cannot reconnect while close is in progress");
     if (closePromise) await closePromise;
-    if (!closed) {
-      closed = true;
+    if (!state.closed) {
+      state.closed = true;
+      binding.unbind();
       await getTransport()?.close?.();
       clearTransport?.();
     }
-    closed = false;
+    state.closed = false;
     closePromise = undefined;
     try {
       return attach(await connect());
     } catch (error) {
-      closed = true;
-      closePromise = undefined;
-      await close().catch(() => {
+      if (state.closed && closePromise) {
+        await closePromise.catch(() => {});
+      } else {
+        state.closed = true;
         closePromise = undefined;
-      });
+        await close().catch(() => {});
+      }
       throw error;
     }
   };
@@ -88,13 +92,9 @@ export function createClientLifecycle({
     return client;
   };
   return {
-    isClosed: () => closed,
+    isClosed: () => state.closed,
     reset: retry.reset,
-    bind: (transport) => {
-      if (typeof transport.on !== "function") return;
-      transport.on("close", retry.schedule);
-      transport.on("error", retry.schedule);
-    },
+    bind: binding.bind,
     attach,
   };
 }
