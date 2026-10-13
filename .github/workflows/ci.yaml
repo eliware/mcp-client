@@ -29,3 +29,5 @@ jobs:
       - run: npm -g install npm@latest
       - run: npm ci
       - run: npm test
+      - run: >-
+          node -e 'const major = Number(require("node:child_process").execFileSync("npm", ["--version"], { encoding: "utf8" }).split(".")[0]); if (major < 12) process.exit(1)'

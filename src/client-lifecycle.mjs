@@ -11,6 +11,7 @@ export function createClientLifecycle({
   maxAttempts,
   log,
 }) {
+  const ignoreError = () => {};
   let closePromise;
   const state = { closed: false, closing: false };
   let reconnectPromise;
@@ -66,12 +67,15 @@ export function createClientLifecycle({
     try {
       return attach(await connect());
     } catch (error) {
-      if (state.closed && closePromise) {
-        await closePromise.catch(() => {});
-      } else {
-        state.closed = true;
+      if (state.closing && closePromise) {
+        await closePromise.catch(ignoreError);
+      }
+      if (getTransport()) {
         closePromise = undefined;
-        await close().catch(() => {});
+        await close().catch(ignoreError);
+      } else if (!state.closed) {
+        closePromise = undefined;
+        await close().catch(ignoreError);
       }
       throw error;
     }
