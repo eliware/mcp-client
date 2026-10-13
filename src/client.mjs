@@ -45,9 +45,14 @@ export async function mcpClient(options) {
     const connectingTransport = activeTransport;
     await client.connect(connectingTransport);
     if (lifecycle.isClosed()) {
-      await connectingTransport.close?.();
+      let closeError;
+      try {
+        await connectingTransport.close?.();
+      } catch (error) {
+        closeError = error;
+      }
       activeTransport = undefined;
-      throw new Error("Client closed during connection");
+      throw new Error("Client closed during connection", { cause: closeError });
     }
     lifecycle.reset();
     log.debug?.(`MCP client connected (${transport})`);

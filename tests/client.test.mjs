@@ -109,19 +109,26 @@ test("does not reconnect while the client closes", async () => {
 
 test("closes a transport when close interrupts its connection", async () => {
   let finishConnect;
+  let finishToken;
+  const tokenProvider = jest
+    .fn()
+    .mockResolvedValueOnce("initial")
+    .mockImplementationOnce(() => new Promise((resolve) => (finishToken = resolve)));
   connect
     .mockImplementationOnce(() => Promise.resolve())
     .mockImplementationOnce(() => new Promise((resolve) => (finishConnect = resolve)));
-  const client = await openClient({ reconnect: false });
+  const client = await openClient({ reconnect: false, tokenProvider });
+  await client.close();
   const reconnectPromise = client.reconnect();
   await new Promise((resolve) => setImmediate(resolve));
-  const connectingTransport = client.mcpConnection.transport;
-  connectingTransport.close.mockRejectedValueOnce(new Error("close failed"));
-  const closePromise = client.close();
-  await expect(closePromise).rejects.toThrow("close failed");
+  await client.close();
+  finishToken("next");
+  await new Promise((resolve) => setImmediate(resolve));
+  const connectingTransport = transports[1];
+  connectingTransport.close.mockRejectedValueOnce(new Error("late close failed"));
   finishConnect();
   await expect(reconnectPromise).rejects.toThrow("Client closed during connection");
-  expect(connectingTransport.close).toHaveBeenCalled();
+  expect(connectingTransport.close).toHaveBeenCalledTimes(1);
   expect(client.mcpConnection.transport).toBeUndefined();
 });
 
