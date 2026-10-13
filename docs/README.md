@@ -1,12 +1,11 @@
 # Documentation
 
-This directory contains end-user documentation for `@eliware/mcp-client`.
+This guide helps users install, connect, authenticate, and manage an MCP client.
 
 ## Contents
 
 - [Usage](usage.md)
+- [API](api.md)
 - [Troubleshooting](troubleshooting.md)
 
-Audience: MCP client users. Prerequisites: a supported runtime and explicitly
-authorized MCP servers. Expected result: documented operations complete within
-their stated safety boundaries.
+Audience: Node.js developers who use MCP servers. Prerequisites: Node.js 26 or later and an MCP server. Expected result: a connected MCP SDK client.
