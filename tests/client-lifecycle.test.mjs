@@ -29,11 +29,12 @@ test("binds transport events and schedules a reconnect", async () => {
 test("attaches and closes client lifecycle methods", async () => {
   const transport = { close: jest.fn() };
   const dispatcher = { close: jest.fn() };
-  const connect = jest.fn().mockResolvedValue("reconnected");
+  const closeDispatcher = jest.fn(() => dispatcher.close());
+  const connect = jest.fn().mockResolvedValue({});
   const lifecycle = createClientLifecycle({
     connect,
     getTransport: () => transport,
-    dispatcher,
+    closeDispatcher,
     enabled: false,
     baseDelay: 5,
     maxDelay: 10,
@@ -49,12 +50,16 @@ test("attaches and closes client lifecycle methods", async () => {
   expect(transport.close).toHaveBeenCalledTimes(1);
   expect(dispatcher.close).toHaveBeenCalledTimes(1);
   await client.disconnect();
-  expect(transport.close).toHaveBeenCalledTimes(2);
-  expect(await client.reconnect()).toBe("reconnected");
+  expect(transport.close).toHaveBeenCalledTimes(1);
+  expect(closeDispatcher).toHaveBeenCalledTimes(1);
+  const reconnected = await client.reconnect();
+  expect(reconnected.close).toBe(client.close);
+  expect(reconnected.mcpConnection.transport).toBe(transport);
   expect(lifecycle.isClosed()).toBe(false);
-  expect(transport.close).toHaveBeenCalledTimes(3);
+  expect(transport.close).toHaveBeenCalledTimes(1);
   await client.mcpConnection.close();
   expect(lifecycle.isClosed()).toBe(true);
+  expect(closeDispatcher).toHaveBeenCalledTimes(2);
 });
 
 test("clears a pending retry before a manual reconnect", async () => {
@@ -67,7 +72,7 @@ test("clears a pending retry before a manual reconnect", async () => {
   };
   const connect = jest.fn(() => {
     lifecycle.reset();
-    return Promise.resolve("reconnected");
+    return Promise.resolve({});
   });
   lifecycle = createClientLifecycle({
     connect,
@@ -90,11 +95,12 @@ test("clears a pending retry before a manual reconnect", async () => {
 
 test("closes the dispatcher when transport close fails", async () => {
   const dispatcher = { close: jest.fn() };
+  const closeDispatcher = jest.fn(() => dispatcher.close());
   const transport = { close: jest.fn().mockRejectedValue(new Error("transport close failed")) };
   const lifecycle = createClientLifecycle({
     connect: jest.fn(),
     getTransport: () => transport,
-    dispatcher,
+    closeDispatcher,
     enabled: false,
     baseDelay: 5,
     maxDelay: 10,

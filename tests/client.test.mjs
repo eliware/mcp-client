@@ -84,14 +84,22 @@ test("supports token providers and environment tokens", async () => {
 test("supports the reconnect lifecycle", async () => {
   const client = await mcpClient({
     reconnect: false,
+    forceIPv4: true,
     ClientClass: MockClient,
-    TransportClass: MockTransport,
+    HTTPTransportClass: MockTransport,
   });
   const oldTransport = client.mcpConnection.transport;
-  await client.reconnect();
+  const oldDispatcher = oldTransport.options.requestInit.dispatcher;
+  const reconnected = await client.reconnect();
   expect(oldTransport.close).toHaveBeenCalled();
   expect(connect).toHaveBeenCalledTimes(2);
+  expect(reconnected.mcpConnection.transport).not.toBe(oldTransport);
+  expect(typeof reconnected.close).toBe("function");
+  await reconnected.close();
   await client.close();
+  const reopened = await client.reconnect();
+  expect(reopened.mcpConnection.transport.options.requestInit.dispatcher).not.toBe(oldDispatcher);
+  await reopened.close();
 });
 
 test("rejects stdio without a command", async () => {

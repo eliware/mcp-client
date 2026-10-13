@@ -30,9 +30,8 @@ export async function mcpClient(options) {
   );
   let client;
   let activeTransport;
+  let dispatcher;
   const ClientImplementation = resolveClientClass(ClientClass);
-  const dispatcher =
-    forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
 
   const getToken = () => resolveToken({ token, tokenProvider });
 
@@ -40,6 +39,8 @@ export async function mcpClient(options) {
     assertOpen(lifecycle.isClosed());
     const authToken = await getToken();
     client = new ClientImplementation(clientInfo, { capabilities });
+    dispatcher ??=
+      forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
     activeTransport = createClientTransport(normalizeOptions(options), authToken, dispatcher);
     await client.connect(activeTransport);
     lifecycle.reset();
@@ -51,7 +52,11 @@ export async function mcpClient(options) {
   const lifecycle = createClientLifecycle({
     connect,
     getTransport: () => activeTransport,
-    dispatcher,
+    closeDispatcher: async () => {
+      const currentDispatcher = dispatcher;
+      dispatcher = undefined;
+      await currentDispatcher?.close();
+    },
     enabled: reconnect,
     baseDelay,
     maxDelay,

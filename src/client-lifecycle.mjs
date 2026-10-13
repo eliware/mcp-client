@@ -3,7 +3,7 @@ import { createReconnect } from "./reconnect.mjs";
 export function createClientLifecycle({
   connect,
   getTransport,
-  dispatcher,
+  closeDispatcher,
   enabled,
   baseDelay,
   maxDelay,
@@ -11,6 +11,7 @@ export function createClientLifecycle({
   log,
 }) {
   let closed = false;
+  let closePromise;
   const retry = createReconnect({
     connect,
     isClosed: () => closed,
@@ -20,21 +21,45 @@ export function createClientLifecycle({
     maxAttempts,
     log,
   });
-  const close = async () => {
+  const close = () => {
+    if (closePromise) return closePromise;
     closed = true;
     retry.clear();
-    try {
-      await getTransport()?.close?.();
-    } finally {
-      await dispatcher?.close();
-    }
+    closePromise = (async () => {
+      try {
+        await getTransport()?.close?.();
+      } finally {
+        await closeDispatcher?.();
+      }
+    })();
+    return closePromise;
   };
   const reconnect = async () => {
     retry.clear();
-    closed = true;
-    await getTransport()?.close?.();
+    if (closePromise) await closePromise;
+    if (!closed) {
+      closed = true;
+      await getTransport()?.close?.();
+    }
     closed = false;
-    return connect();
+    closePromise = undefined;
+    return attach(await connect());
+  };
+  const attach = (client) => {
+    Object.defineProperties(client, {
+      close: { value: close },
+      disconnect: { value: close },
+      reconnect: { value: reconnect },
+      mcpConnection: {
+        value: {
+          get transport() {
+            return getTransport();
+          },
+          close,
+        },
+      },
+    });
+    return client;
   };
   return {
     isClosed: () => closed,
@@ -44,21 +69,6 @@ export function createClientLifecycle({
       transport.on("close", retry.schedule);
       transport.on("error", retry.schedule);
     },
-    attach: (client) => {
-      Object.defineProperties(client, {
-        close: { value: close },
-        disconnect: { value: close },
-        reconnect: { value: reconnect },
-        mcpConnection: {
-          value: {
-            get transport() {
-              return getTransport();
-            },
-            close,
-          },
-        },
-      });
-      return client;
-    },
+    attach,
   };
 }
