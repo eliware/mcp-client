@@ -112,6 +112,38 @@ test("closes the dispatcher when transport close fails", async () => {
   expect(dispatcher.close).toHaveBeenCalledTimes(1);
 });
 
+test("cleans up and closes the lifecycle when reconnect fails", async () => {
+  const firstTransport = { close: jest.fn() };
+  const failedTransport = { close: jest.fn() };
+  const dispatcher = { close: jest.fn() };
+  let activeTransport = firstTransport;
+  const connect = jest.fn(() => {
+    activeTransport = failedTransport;
+    throw new Error("connect failed");
+  });
+  const closeDispatcher = jest.fn(() => {
+    dispatcher.close();
+    throw new Error("dispatcher close failed");
+  });
+  const lifecycle = createClientLifecycle({
+    connect,
+    getTransport: () => activeTransport,
+    closeDispatcher,
+    enabled: true,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  const client = lifecycle.attach({});
+  await expect(client.reconnect()).rejects.toThrow("connect failed");
+  expect(lifecycle.isClosed()).toBe(true);
+  expect(firstTransport.close).toHaveBeenCalledTimes(1);
+  expect(failedTransport.close).toHaveBeenCalledTimes(1);
+  expect(closeDispatcher).toHaveBeenCalledTimes(1);
+  expect(dispatcher.close).toHaveBeenCalledTimes(1);
+});
+
 test("binds no listeners for a transport without events", () => {
   const lifecycle = createClientLifecycle({
     connect: jest.fn(),

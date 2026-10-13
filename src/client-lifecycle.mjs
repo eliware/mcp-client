@@ -43,7 +43,16 @@ export function createClientLifecycle({
     }
     closed = false;
     closePromise = undefined;
-    return attach(await connect());
+    try {
+      return attach(await connect());
+    } catch (error) {
+      closed = true;
+      closePromise = undefined;
+      await close().catch(() => {
+        closePromise = undefined;
+      });
+      throw error;
+    }
   };
   const attach = (client) => {
     Object.defineProperties(client, {
