@@ -75,10 +75,11 @@ export async function mcpClient(options) {
   try {
     return lifecycle.attach(await connect());
   } catch (error) {
-    await lifecycle
-      .attach({})
-      .close()
-      .catch(() => {});
+    try {
+      await lifecycle.attach({}).close();
+    } catch {
+      // Preserve the connection error.
+    }
     throw error;
   }
 }
