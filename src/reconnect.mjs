@@ -27,7 +27,7 @@ export function createReconnect({
   maxDelay,
   maxAttempts,
   log,
-  onClear,
+  onConnect,
 }) {
   let timer;
   let attempts = 0;
@@ -37,10 +37,10 @@ export function createReconnect({
     attempts = 0;
     delay = baseDelay;
   };
-  const clear = () => {
+  const clear = (afterClear) => {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
-    onClear?.();
+    afterClear?.();
   };
   const schedule = () => {
     if (isClosed() || !enabled || timer || attempts >= maxAttempts) return;
@@ -48,7 +48,8 @@ export function createReconnect({
     timer = setTimeout(async () => {
       timer = undefined;
       try {
-        await connect();
+        const client = await connect();
+        onConnect?.(client);
       } catch (error) {
         if (!isClosed()) {
           log.error?.("MCP reconnect failed", error);

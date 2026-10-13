@@ -3,12 +3,13 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { createClientMocks } from "../test-fixtures/client-mocks.mjs";
 import { mcpClient, resolveClientClass } from "../src/client.mjs";
 
-const { connect, events, log, MockTransport, MockClient } = createClientMocks();
+const { connect, events, log, transports, MockTransport, MockClient } = createClientMocks();
 const openClient = (options = {}) =>
   mcpClient({ ClientClass: MockClient, TransportClass: MockTransport, ...options });
 
 beforeEach(() => {
   jest.clearAllMocks();
+  transports.length = 0;
   Object.keys(events).forEach((key) => delete events[key]);
   connect.mockResolvedValue(undefined);
 });
@@ -65,24 +66,25 @@ test("supports token providers and environment tokens", async () => {
 });
 
 test("supports the reconnect lifecycle", async () => {
+  jest.useFakeTimers();
   const client = await mcpClient({
-    reconnect: false,
+    reconnectBaseDelay: 5,
     forceIPv4: true,
     ClientClass: MockClient,
     HTTPTransportClass: MockTransport,
   });
-  const oldTransport = client.mcpConnection.transport;
-  const oldDispatcher = oldTransport.options.requestInit.dispatcher;
+  const oldSequence = client.currentSequence();
+  events.close();
+  await jest.advanceTimersByTimeAsync(5);
+  jest.useRealTimers();
+  expect(client.currentSequence()).not.toBe(oldSequence);
+  const automaticTransport = client.mcpConnection.transport;
   const reconnected = await client.reconnect();
-  expect(oldTransport.close).toHaveBeenCalled();
-  expect(connect).toHaveBeenCalledTimes(2);
-  expect(reconnected.mcpConnection.transport).not.toBe(oldTransport);
-  expect(typeof reconnected.close).toBe("function");
+  expect(reconnected).toBe(client);
+  expect(automaticTransport.close).toHaveBeenCalled();
+  expect(connect).toHaveBeenCalledTimes(3);
+  expect(reconnected.mcpConnection.transport).not.toBe(automaticTransport);
   await reconnected.close();
-  await client.close();
-  const reopened = await client.reconnect();
-  expect(reopened.mcpConnection.transport.options.requestInit.dispatcher).not.toBe(oldDispatcher);
-  await reopened.close();
 });
 
 test("does not reconnect while the client closes", async () => {
@@ -124,17 +126,12 @@ test("closes a transport when close interrupts its connection", async () => {
 });
 
 test("closes resources when the initial connection fails", async () => {
-  let transport;
-  class TrackedTransport extends MockTransport {
-    constructor(...args) {
-      super(...args);
-      transport = this;
-    }
-    close = jest.fn().mockRejectedValue(new Error("cleanup failed"));
-  }
   connect.mockRejectedValueOnce(new Error("offline"));
-  await expect(openClient({ TransportClass: TrackedTransport })).rejects.toThrow("offline");
-  expect(transport.close).toHaveBeenCalledTimes(1);
+  const failure = openClient().then(null, (error) => error);
+  await Promise.resolve();
+  transports[0].close.mockRejectedValueOnce(new Error("cleanup failed"));
+  expect((await failure).message).toBe("offline");
+  expect(transports[0].close).toHaveBeenCalledTimes(1);
 });
 
 test("allows another manual reconnect after a connection failure", async () => {
@@ -143,7 +140,10 @@ test("allows another manual reconnect after a connection failure", async () => {
     .mockRejectedValueOnce(new Error("offline"))
     .mockResolvedValueOnce(undefined);
   const client = await openClient({ reconnect: false });
+  await client.close();
   await expect(client.reconnect()).rejects.toThrow("offline");
+  expect(transports[1].close).toHaveBeenCalledTimes(1);
+  expect(connect).toHaveBeenCalledTimes(2);
   const reconnected = await client.reconnect();
   expect(connect).toHaveBeenCalledTimes(3);
   expect(reconnected.mcpConnection.transport).toBeDefined();

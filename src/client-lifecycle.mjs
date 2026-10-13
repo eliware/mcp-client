@@ -1,4 +1,5 @@
 import { createReconnect, createTransportBinding } from "./reconnect.mjs";
+import { createLifecycleFacade } from "./client-facade.mjs";
 export function createClientLifecycle({
   connect,
   getTransport,
@@ -23,13 +24,13 @@ export function createClientLifecycle({
     maxDelay,
     maxAttempts,
     log,
-    onClear: binding.unbind,
+    onConnect: (client) => attach(client),
   });
   const close = () => {
     if (closePromise) return closePromise;
     state.closed = true;
     state.closing = true;
-    retry.clear();
+    retry.clear(binding.unbind);
     closePromise = (async () => {
       try {
         await getTransport()?.close?.();
@@ -52,7 +53,7 @@ export function createClientLifecycle({
     return reconnectPromise;
   };
   const reconnectClient = async () => {
-    retry.clear();
+    retry.clear(binding.unbind);
     if (state.closing) throw new Error("Cannot reconnect while close is in progress");
     if (closePromise) await closePromise;
     if (!state.closed) {
@@ -75,22 +76,7 @@ export function createClientLifecycle({
       throw error;
     }
   };
-  const attach = (client) => {
-    Object.defineProperties(client, {
-      close: { value: close },
-      disconnect: { value: close },
-      reconnect: { value: reconnect },
-      mcpConnection: {
-        value: {
-          get transport() {
-            return getTransport();
-          },
-          close,
-        },
-      },
-    });
-    return client;
-  };
+  const attach = createLifecycleFacade({ close, reconnect, getTransport });
   return {
     isClosed: () => state.closed,
     reset: retry.reset,
