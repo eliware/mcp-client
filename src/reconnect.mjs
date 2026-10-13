@@ -27,6 +27,7 @@ export function createReconnect({
   maxDelay,
   maxAttempts,
   log,
+  onClear,
 }) {
   let timer;
   let attempts = 0;
@@ -39,6 +40,7 @@ export function createReconnect({
   const clear = () => {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
+    onClear?.();
   };
   const schedule = () => {
     if (isClosed() || !enabled || timer || attempts >= maxAttempts) return;

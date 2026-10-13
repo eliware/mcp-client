@@ -4,6 +4,8 @@ import { createClientMocks } from "../test-fixtures/client-mocks.mjs";
 import { mcpClient, resolveClientClass } from "../src/client.mjs";
 
 const { connect, events, log, MockTransport, MockClient } = createClientMocks();
+const openClient = (options = {}) =>
+  mcpClient({ ClientClass: MockClient, TransportClass: MockTransport, ...options });
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -24,12 +26,7 @@ test("selects the default SDK client class", () => {
 });
 
 test("connects and exposes lifecycle controls", async () => {
-  const client = await mcpClient({
-    log,
-    url: "http://server/mcp",
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
+  const client = await openClient({ log, url: "http://server/mcp" });
   expect(client.info.name).toBe("@eliware/mcp-client");
   expect(client.mcpConnection.transport.url).toBe("http://server/mcp");
   expect(log.debug).toHaveBeenCalledWith("MCP client connected (http)");
@@ -37,24 +34,13 @@ test("connects and exposes lifecycle controls", async () => {
 });
 
 test("creates an IPv4 dispatcher when requested", async () => {
-  const client = await mcpClient({
-    forceIPv4: true,
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-    reconnect: false,
-  });
+  const client = await openClient({ forceIPv4: true, reconnect: false });
   expect(client.mcpConnection.transport.options.requestInit.dispatcher).toBeDefined();
   await client.close();
 });
 
 test("adds bearer and custom headers", async () => {
-  const client = await mcpClient({
-    log,
-    token: "secret",
-    headers: { "x-app": "test" },
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
+  const client = await openClient({ log, token: "secret", headers: { "x-app": "test" } });
   expect(client.mcpConnection.transport.options.requestInit.headers).toEqual({
     Authorization: "Bearer secret",
     "x-app": "test",
@@ -64,18 +50,14 @@ test("adds bearer and custom headers", async () => {
 
 test("supports token providers and environment tokens", async () => {
   const tokenProvider = jest.fn().mockResolvedValue("dynamic");
-  const client = await mcpClient({
-    tokenProvider,
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
+  const client = await openClient({ tokenProvider });
   expect(tokenProvider).toHaveBeenCalled();
   expect(client.mcpConnection.transport.options.requestInit.headers.Authorization).toBe(
     "Bearer dynamic",
   );
   await client.close();
   process.env.MCP_TOKEN = "env";
-  const envClient = await mcpClient({ ClientClass: MockClient, TransportClass: MockTransport });
+  const envClient = await openClient();
   expect(envClient.mcpConnection.transport.options.requestInit.headers.Authorization).toBe(
     "Bearer env",
   );
@@ -113,11 +95,7 @@ test("does not reconnect while the client closes", async () => {
         }),
     );
   }
-  const client = await mcpClient({
-    reconnect: false,
-    ClientClass: MockClient,
-    TransportClass: SlowCloseTransport,
-  });
+  const client = await openClient({ reconnect: false, TransportClass: SlowCloseTransport });
   const closePromise = client.close();
   const reconnectPromise = client.reconnect();
   finishClose();
@@ -132,11 +110,7 @@ test("closes a transport when close interrupts its connection", async () => {
   connect
     .mockImplementationOnce(() => Promise.resolve())
     .mockImplementationOnce(() => new Promise((resolve) => (finishConnect = resolve)));
-  const client = await mcpClient({
-    reconnect: false,
-    ClientClass: MockClient,
-    TransportClass: MockTransport,
-  });
+  const client = await openClient({ reconnect: false });
   const reconnectPromise = client.reconnect();
   await new Promise((resolve) => setImmediate(resolve));
   const connectingTransport = client.mcpConnection.transport;
@@ -149,6 +123,33 @@ test("closes a transport when close interrupts its connection", async () => {
   expect(client.mcpConnection.transport).toBeUndefined();
 });
 
+test("closes resources when the initial connection fails", async () => {
+  let transport;
+  class TrackedTransport extends MockTransport {
+    constructor(...args) {
+      super(...args);
+      transport = this;
+    }
+    close = jest.fn().mockRejectedValue(new Error("cleanup failed"));
+  }
+  connect.mockRejectedValueOnce(new Error("offline"));
+  await expect(openClient({ TransportClass: TrackedTransport })).rejects.toThrow("offline");
+  expect(transport.close).toHaveBeenCalledTimes(1);
+});
+
+test("allows another manual reconnect after a connection failure", async () => {
+  connect
+    .mockResolvedValueOnce(undefined)
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockResolvedValueOnce(undefined);
+  const client = await openClient({ reconnect: false });
+  await expect(client.reconnect()).rejects.toThrow("offline");
+  const reconnected = await client.reconnect();
+  expect(connect).toHaveBeenCalledTimes(3);
+  expect(reconnected.mcpConnection.transport).toBeDefined();
+  await reconnected.close();
+});
+
 test("rejects stdio without a command", async () => {
   await expect(mcpClient({ transport: "stdio", ClientClass: MockClient })).rejects.toThrow(
     "stdio transport requires command",
@@ -159,11 +160,7 @@ test("uses custom capabilities with transports without events", async () => {
   class NoEvents {
     close = jest.fn();
   }
-  const client = await mcpClient({
-    capabilities: { roots: {} },
-    ClientClass: MockClient,
-    TransportClass: NoEvents,
-  });
+  const client = await openClient({ capabilities: { roots: {} }, TransportClass: NoEvents });
   expect(client.options.capabilities).toEqual({ roots: {} });
   await client.close();
 });

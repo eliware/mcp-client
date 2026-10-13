@@ -72,8 +72,15 @@ export async function mcpClient(options) {
     maxAttempts: maxReconnectAttempts,
     log,
   });
-  const connected = await connect();
-  return lifecycle.attach(connected);
+  try {
+    return lifecycle.attach(await connect());
+  } catch (error) {
+    await lifecycle
+      .attach({})
+      .close()
+      .catch(() => {});
+    throw error;
+  }
 }
 
 export default mcpClient;

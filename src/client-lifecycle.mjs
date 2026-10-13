@@ -13,7 +13,9 @@ export function createClientLifecycle({
   let closePromise;
   const state = { closed: false, closing: false };
   let reconnectPromise;
-  const retry = createReconnect({
+  let retry;
+  const binding = createTransportBinding(() => retry.schedule());
+  retry = createReconnect({
     connect,
     isClosed: () => state.closed,
     enabled,
@@ -21,14 +23,13 @@ export function createClientLifecycle({
     maxDelay,
     maxAttempts,
     log,
+    onClear: binding.unbind,
   });
-  const binding = createTransportBinding(retry.schedule);
   const close = () => {
     if (closePromise) return closePromise;
     state.closed = true;
     state.closing = true;
     retry.clear();
-    binding.unbind();
     closePromise = (async () => {
       try {
         await getTransport()?.close?.();
@@ -56,7 +57,6 @@ export function createClientLifecycle({
     if (closePromise) await closePromise;
     if (!state.closed) {
       state.closed = true;
-      binding.unbind();
       await getTransport()?.close?.();
       clearTransport?.();
     }
