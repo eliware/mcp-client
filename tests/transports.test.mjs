@@ -21,6 +21,16 @@ test("creates an injected transport with a bearer token", () => {
   expect(transport.options.requestInit.headers.Authorization).toBe("Bearer t");
 });
 
+test("passes an IPv4 dispatcher to an injected transport", () => {
+  const dispatcher = {};
+  const transport = createTransport({
+    TransportClass: HTTP,
+    url: "http://x",
+    dispatcher,
+  });
+  expect(transport.options.requestInit.dispatcher).toBe(dispatcher);
+});
+
 test("creates a client transport from client options", () => {
   const transport = createClientTransport({ TransportClass: HTTP, url: "http://x" }, "token");
   expect(transport.options.requestInit.headers.Authorization).toBe("Bearer token");

@@ -26,7 +26,7 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 | `url`                  | `string`                                                    | `MCP_URL` or `http://localhost:${MCP_PORT or 1234}/mcp` | HTTP or SSE endpoint.                                 |
 | `transport`            | `"http"`, `"sse"`, or `"stdio"`                             | `"http"`                                                | SDK transport to use.                                 |
 | `token`                | `string`                                                    | `MCP_TOKEN`                                             | Static bearer token.                                  |
-| `tokenProvider`        | `() => string \| Promise<string \| undefined>`              | None                                                    | Token source for each connection.                     |
+| `tokenProvider`        | `() => string \| Promise<string \| undefined>`              | None                                                    | Token source for each HTTP or SSE connection.         |
 | `headers`              | `Record<string, string>`                                    | `{}`                                                    | Extra HTTP or SSE headers.                            |
 | `command`              | `string`                                                    | None                                                    | Executable for stdio. Required for stdio.             |
 | `args`                 | `string[]`                                                  | None                                                    | Arguments for the stdio process.                      |

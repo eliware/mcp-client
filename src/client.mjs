@@ -37,7 +37,7 @@ export async function mcpClient(options) {
 
   const connect = async () => {
     assertOpen(lifecycle.isClosed());
-    const authToken = await getToken();
+    const authToken = transport === "stdio" ? undefined : await getToken();
     client = new ClientImplementation(clientInfo, { capabilities });
     dispatcher ??=
       forceIPv4 && transport !== "stdio" ? new Agent({ connect: { family: 4 } }) : undefined;
@@ -52,6 +52,9 @@ export async function mcpClient(options) {
   const lifecycle = createClientLifecycle({
     connect,
     getTransport: () => activeTransport,
+    clearTransport: () => {
+      activeTransport = undefined;
+    },
     closeDispatcher: async () => {
       const currentDispatcher = dispatcher;
       dispatcher = undefined;

@@ -35,7 +35,7 @@ Keep the MCP server protocol on stdout. Send server logs to stderr.
 ## Set authentication
 
 Set `token` to send a static bearer token. The client sends it in the `Authorization` header.
-Set `tokenProvider` to return a token for each connection. The provider also runs after a reconnect.
+Set `tokenProvider` to return a token for each HTTP or SSE connection. The provider also runs after a reconnect.
 Set `headers` to send extra HTTP or SSE request headers. The `token` option replaces an `Authorization` value in `headers`.
 
 The package does not perform OAuth discovery, PKCE, client registration, consent, token refresh, or user sessions.

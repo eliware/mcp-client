@@ -43,6 +43,7 @@ test("creates an IPv4 dispatcher when requested", async () => {
     TransportClass: MockTransport,
     reconnect: false,
   });
+  expect(client.mcpConnection.transport.options.requestInit.dispatcher).toBeDefined();
   await client.close();
 });
 
@@ -122,6 +123,7 @@ test("uses custom capabilities with transports without events", async () => {
 });
 
 test("connects to a stdio transport with a local command", async () => {
+  const tokenProvider = jest.fn();
   class StdioTransport {
     constructor(options) {
       this.options = options;
@@ -132,6 +134,7 @@ test("connects to a stdio transport with a local command", async () => {
     transport: "stdio",
     command: "node",
     args: ["server.mjs"],
+    tokenProvider,
     reconnect: false,
     log,
     ClientClass: MockClient,
@@ -142,5 +145,6 @@ test("connects to a stdio transport with a local command", async () => {
     args: ["server.mjs"],
     env: undefined,
   });
+  expect(tokenProvider).not.toHaveBeenCalled();
   await client.close();
 });

@@ -19,7 +19,10 @@ export function createTransport({
 }) {
   if (TransportClass) {
     return new TransportClass(url, {
-      requestInit: { headers: resolveAuthHeaders(token, headers) },
+      requestInit: {
+        headers: resolveAuthHeaders(token, headers),
+        ...(dispatcher ? { dispatcher } : {}),
+      },
     });
   }
   if (transport === "stdio") {

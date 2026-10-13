@@ -128,6 +128,9 @@ test("cleans up and closes the lifecycle when reconnect fails", async () => {
   const lifecycle = createClientLifecycle({
     connect,
     getTransport: () => activeTransport,
+    clearTransport: () => {
+      activeTransport = undefined;
+    },
     closeDispatcher,
     enabled: true,
     baseDelay: 5,
@@ -140,8 +143,40 @@ test("cleans up and closes the lifecycle when reconnect fails", async () => {
   expect(lifecycle.isClosed()).toBe(true);
   expect(firstTransport.close).toHaveBeenCalledTimes(1);
   expect(failedTransport.close).toHaveBeenCalledTimes(1);
+  expect(client.mcpConnection.transport).toBeUndefined();
   expect(closeDispatcher).toHaveBeenCalledTimes(1);
   expect(dispatcher.close).toHaveBeenCalledTimes(1);
+});
+
+test("shares one promise across concurrent reconnect calls", async () => {
+  const transport = { close: jest.fn() };
+  let finishConnect;
+  const nextClient = {};
+  const connect = jest.fn(
+    () =>
+      new Promise((resolve) => {
+        finishConnect = () => resolve(nextClient);
+      }),
+  );
+  const lifecycle = createClientLifecycle({
+    connect,
+    getTransport: () => transport,
+    enabled: false,
+    baseDelay: 5,
+    maxDelay: 10,
+    maxAttempts: 1,
+    log: {},
+  });
+  const client = lifecycle.attach({});
+  const firstReconnect = client.reconnect();
+  const secondReconnect = client.reconnect();
+  expect(secondReconnect).toBe(firstReconnect);
+  await new Promise((resolve) => setImmediate(resolve));
+  expect(connect).toHaveBeenCalledTimes(1);
+  finishConnect();
+  const [firstClient, secondClient] = await Promise.all([firstReconnect, secondReconnect]);
+  expect(firstClient).toBe(secondClient);
+  expect(typeof firstClient.close).toBe("function");
 });
 
 test("binds no listeners for a transport without events", () => {
