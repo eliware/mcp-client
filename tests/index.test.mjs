@@ -1,10 +1,8 @@
 import { expect, test } from "@jest/globals";
-import mcpClient, * as clientApi from "../src/index.mjs";
+import { mcpClient } from "../src/index.mjs";
 
-test("exports the public client API", () => {
-  expect(typeof mcpClient).toBe("function");
-  expect(clientApi.mcpClient).toBe(mcpClient);
-  expect(typeof clientApi.createTransport).toBe("function");
-  expect(typeof clientApi.resolveAuthHeaders).toBe("function");
-  expect(typeof clientApi.numberOption).toBe("function");
+test("exports only the named client factory", async () => {
+  const api = await import("../src/index.mjs");
+  expect(Object.keys(api)).toEqual(["mcpClient"]);
+  expect(api.mcpClient).toBe(mcpClient);
 });

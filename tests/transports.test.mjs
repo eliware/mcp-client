@@ -1,5 +1,5 @@
-import { expect, test } from "@jest/globals";
-import { createClientTransport, createTransport } from "../src/transports.mjs";
+import { expect, jest, test } from "@jest/globals";
+import { createClientTransport } from "../src/transports.mjs";
 
 class HTTP {
   constructor(url, options) {
@@ -8,73 +8,71 @@ class HTTP {
   }
 }
 
-class SSE extends HTTP {}
-
 class Stdio {
   constructor(options) {
     this.options = options;
   }
 }
 
-test("creates an injected transport with a bearer token", () => {
-  const transport = createTransport({ TransportClass: HTTP, url: "http://x", token: "t" });
-  expect(transport.options.requestInit.headers.Authorization).toBe("Bearer t");
+test("creates Streamable HTTP with the default endpoint", () => {
+  const transport = createClientTransport({}, { HTTPTransportClass: HTTP });
+  expect(transport.url.href).toBe("http://localhost:1234/mcp");
 });
 
-test("passes an IPv4 dispatcher to an injected transport", () => {
-  const dispatcher = {};
-  const transport = createTransport({
-    TransportClass: HTTP,
-    url: "http://x",
-    dispatcher,
+test("uses the SDK v2 Streamable HTTP transport by default", () => {
+  const transport = createClientTransport({ url: "http://localhost/mcp" });
+  expect(transport.constructor.name).toBe("StreamableHTTPClientTransport");
+});
+
+test("creates Streamable HTTP with bearer and custom headers", () => {
+  const transport = createClientTransport(
+    { url: "https://mcp.example/mcp", token: "secret", headers: { "x-app": "test" } },
+    { HTTPTransportClass: HTTP },
+  );
+  expect(transport.url.href).toBe("https://mcp.example/mcp");
+  expect(transport.options.requestInit.headers).toEqual({
+    "x-app": "test",
+    Authorization: "Bearer secret",
   });
-  expect(transport.options.requestInit.dispatcher).toBe(dispatcher);
 });
 
-test("creates a client transport from client options", () => {
-  const transport = createClientTransport({ TransportClass: HTTP, url: "http://x" }, "token");
-  expect(transport.options.requestInit.headers.Authorization).toBe("Bearer token");
+test("uses the token provider for HTTP requests", () => {
+  const tokenProvider = jest.fn(async () => "rotated");
+  const transport = createClientTransport(
+    { tokenProvider, headers: { "x-app": "test" } },
+    { HTTPTransportClass: HTTP },
+  );
+  expect(transport.options.authProvider.token).toBe(tokenProvider);
+  expect(transport.options.requestInit.headers).toEqual({ "x-app": "test" });
 });
 
-test("creates HTTP with an IPv4 dispatcher", () => {
-  const dispatcher = {};
-  const transport = createTransport({
-    transport: "http",
-    url: "http://x",
-    dispatcher,
-    HTTPTransportClass: HTTP,
-  });
-  expect(transport.options.requestInit.dispatcher).toBe(dispatcher);
+test("uses the environment token when options omit a token", () => {
+  const previousToken = process.env.MCP_TOKEN;
+  process.env.MCP_TOKEN = "environment-token";
+  const transport = createClientTransport({}, { HTTPTransportClass: HTTP });
+  expect(transport.options.requestInit.headers.Authorization).toBe("Bearer environment-token");
+  if (previousToken === undefined) delete process.env.MCP_TOKEN;
+  else process.env.MCP_TOKEN = previousToken;
 });
 
-test("creates HTTP and SSE transports", () => {
-  expect(
-    createTransport({ transport: "http", url: "http://x", HTTPTransportClass: HTTP }),
-  ).toBeInstanceOf(HTTP);
-  expect(
-    createTransport({ transport: "sse", url: "https://x/sse", SSETransportClass: SSE }).url,
-  ).toEqual(new URL("https://x/sse"));
+test("uses environment values for the default URL", () => {
+  const previousUrl = process.env.MCP_URL;
+  const previousPort = process.env.MCP_PORT;
+  delete process.env.MCP_URL;
+  process.env.MCP_PORT = "4321";
+  const transport = createClientTransport({}, { HTTPTransportClass: HTTP });
+  expect(transport.url.href).toBe("http://localhost:4321/mcp");
+  if (previousUrl === undefined) delete process.env.MCP_URL;
+  else process.env.MCP_URL = previousUrl;
+  if (previousPort === undefined) delete process.env.MCP_PORT;
+  else process.env.MCP_PORT = previousPort;
 });
 
-test("creates a stdio transport", () => {
-  const transport = createTransport({
-    transport: "stdio",
-    command: "node",
-    args: ["x"],
-    env: { A: "1" },
-    StdioTransportClass: Stdio,
-  });
-  expect(transport.options).toEqual({ command: "node", args: ["x"], env: { A: "1" } });
-});
-
-test("creates an injected stdio transport with process options", () => {
-  const transport = createTransport({
-    transport: "stdio",
-    command: "node",
-    args: ["server.mjs"],
-    env: { MODE: "test" },
-    TransportClass: Stdio,
-  });
+test("starts stdio with process settings", () => {
+  const transport = createClientTransport(
+    { transport: "stdio", command: "node", args: ["server.mjs"], env: { MODE: "test" } },
+    { StdioTransportClass: Stdio },
+  );
   expect(transport.options).toEqual({
     command: "node",
     args: ["server.mjs"],
@@ -82,16 +80,14 @@ test("creates an injected stdio transport with process options", () => {
   });
 });
 
-test("constructs native SDK transports", async () => {
-  const http = createTransport({ transport: "http", url: "https://x/mcp" });
-  const sse = createTransport({ transport: "sse", url: "https://x/sse" });
-  const stdio = createTransport({
-    transport: "stdio",
-    command: process.execPath,
-    args: ["-e", ""],
-  });
-  expect(http.constructor.name).toBe("StreamableHTTPClientTransport");
-  expect(sse.constructor.name).toBe("SSEClientTransport");
-  expect(stdio.constructor.name).toBe("StdioClientTransport");
-  await stdio.close();
+test("requires an executable for stdio", () => {
+  expect(() => createClientTransport({ transport: "stdio" })).toThrow(
+    "stdio transport requires command",
+  );
+});
+
+test("rejects unsupported transports", () => {
+  expect(() => createClientTransport({ transport: "sse" })).toThrow(
+    "Unsupported MCP transport: sse",
+  );
 });

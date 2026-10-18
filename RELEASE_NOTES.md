@@ -4,9 +4,20 @@
 
 ### Changed
 
-- Set the package version to 13.0.0 and align repository rules with Eliware Convention 13.0.
-- Use the canonical npm publication workflow and the required Knit command sequence.
-- Revise repository guides and rules to follow current language and YAML limits.
+- Use MCP SDK v2 and pin protocol version `2026-07-28`.
+- Connect through Streamable HTTP or stdio.
+- Return the initialized SDK client and use its `close()` method.
+- Limit the public API to the named `mcpClient` function.
+- Remove SDK v1, SSE, reconnect wrappers, helper exports, and package entries for removed features.
+- Update examples, API guides, package metadata, and tests for the v13 client API.
+- Align repository rules with Eliware Convention 13.0 and current Knit and npm workflows.
+
+### Breaking changes
+
+- Import `mcpClient` by name.
+- Remove the default export, `disconnect()`, `reconnect()`, and `mcpConnection` properties.
+- Remove SSE transport support and all SDK v1 protocol negotiation.
+- Use a server that supports the current MCP protocol version.
 
 ## 12.0.0 — 2026-10-13
 

@@ -2,7 +2,7 @@
 
 ## @eliware/mcp-client [![npm](https://img.shields.io/npm/v/@eliware/mcp-client)](https://www.npmjs.com/package/@eliware/mcp-client) [![License](https://img.shields.io/github/license/eliware/mcp-client)](https://github.com/eliware/mcp-client/blob/main/LICENSE) [![CI](https://github.com/eliware/mcp-client/actions/workflows/ci.yaml/badge.svg)](https://github.com/eliware/mcp-client/actions/workflows/ci.yaml)
 
-Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.
+Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authentication.
 
 ## Table of Contents
 
@@ -23,17 +23,16 @@ Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP,
 
 ## Features
 
-- Connect through Streamable HTTP, legacy SSE, or stdio.
+- Connect through Streamable HTTP or stdio.
 - Set bearer tokens, custom headers, or an async token provider.
-- Call official MCP SDK client methods.
-- Set reconnect delays and retry limits.
-- Close, disconnect, or reconnect the client.
+- Use the official SDK v2 client methods.
+- Close the client with `close()`.
 - Import the ESM package and TypeScript declarations.
 
 ## Requirements
 
 - Use Node.js 26 or later.
-- Provide an MCP endpoint for HTTP or SSE.
+- Provide a Streamable HTTP endpoint.
 - Provide a local server command for stdio.
 
 ## Setup
@@ -49,7 +48,7 @@ npm install @eliware/mcp-client
 Connect to a remote MCP server through Streamable HTTP:
 
 ```js
-import mcpClient from "@eliware/mcp-client";
+import { mcpClient } from "@eliware/mcp-client";
 
 const client = await mcpClient({ url: "https://mcp.example.com/mcp" });
 const { tools } = await client.listTools();
@@ -79,7 +78,8 @@ Keep tool arguments and results private. Do not put secrets or URLs with credent
 
 ## API
 
-Call `mcpClient(options)` to connect. The function returns an initialized SDK client with `close()`, `disconnect()`, `reconnect()`, and `mcpConnection.transport`.
+Call `mcpClient(options)` to connect. The function returns an initialized SDK v2 client.
+Call `close()` when the application no longer needs the connection.
 Read the [API guide](docs/api.md) and [TypeScript declarations](src/index.d.ts) for all options and return types.
 
 ## Packaging

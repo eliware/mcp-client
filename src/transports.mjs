@@ -1,45 +1,35 @@
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { resolveAuthHeaders } from "./auth-headers.mjs";
 
-export function createTransport({
-  transport,
-  url = process.env.MCP_URL || `http://localhost:${process.env.MCP_PORT || 1234}/mcp`,
-  token,
-  headers,
-  command,
-  args,
-  env,
-  dispatcher,
-  TransportClass,
-  HTTPTransportClass = StreamableHTTPClientTransport,
-  SSETransportClass = SSEClientTransport,
-  StdioTransportClass = StdioClientTransport,
-}) {
+export function createClientTransport(options, dependencies = {}) {
+  const {
+    transport = "http",
+    token = process.env.MCP_TOKEN,
+    tokenProvider,
+    headers,
+    command,
+    args,
+    env,
+  } = options;
   if (transport === "stdio") {
     if (!command) throw new Error("stdio transport requires command");
-    const StdioClass = TransportClass ?? StdioTransportClass;
+    const StdioClass = dependencies.StdioTransportClass ?? StdioClientTransport;
     return new StdioClass({ command, args, env });
   }
-  if (TransportClass) {
-    return new TransportClass(url, {
-      requestInit: {
-        headers: resolveAuthHeaders(token, headers),
-        ...(dispatcher ? { dispatcher } : {}),
-      },
-    });
-  }
-  const options = {
+  if (transport !== "http") throw new Error(`Unsupported MCP transport: ${transport}`);
+
+  const HTTPClass = dependencies.HTTPTransportClass ?? StreamableHTTPClientTransport;
+  const url = options.url ?? defaultUrl();
+  const authProvider = tokenProvider ? { token: tokenProvider } : undefined;
+  return new HTTPClass(new URL(url), {
+    authProvider,
     requestInit: {
-      headers: resolveAuthHeaders(token, headers),
-      ...(dispatcher ? { dispatcher } : {}),
+      headers: resolveAuthHeaders(tokenProvider ? undefined : token, headers),
     },
-  };
-  if (transport === "sse") return new SSETransportClass(new URL(url), options);
-  return new HTTPTransportClass(url, options);
+  });
 }
 
-export function createClientTransport(options, token, dispatcher) {
-  return createTransport({ ...options, token, dispatcher });
+function defaultUrl() {
+  return process.env.MCP_URL || `http://localhost:${process.env.MCP_PORT || 1234}/mcp`;
 }

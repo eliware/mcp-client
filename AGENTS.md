@@ -46,7 +46,8 @@ Keep documents current. Follow shared conventions and Eliware Operations procedu
 
 Use `src/index.mjs` as the public entry point. Keep declarations in `src/index.d.ts`.
 
-Use Streamable HTTP, SSE, or stdio to connect to MCP servers.
+Use MCP SDK v2 with Streamable HTTP or stdio to connect to MCP servers.
+Pin the current protocol version. Do not add support for older SDK or protocol versions.
 
 Keep OAuth discovery, consent, token refresh, and user sessions in the consuming application.
 
