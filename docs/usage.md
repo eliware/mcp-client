@@ -10,7 +10,7 @@ npm install @eliware/mcp-client
 
 The package uses native ECMAScript modules. Use `import` to load it.
 
-## Connect over HTTP
+## Connect through HTTP
 
 Use Streamable HTTP to connect to the server endpoint:
 
@@ -23,22 +23,24 @@ console.log(tools.map(({ name }) => name));
 await client.close();
 ```
 
-The default URL is `http://localhost:1234/mcp`. Set `url` to use another endpoint.
+The default URL is `http://localhost:1234/mcp`. Set `url` to change the endpoint.
 
-## Choose a transport
+## Select a transport
 
-The default transport is Streamable HTTP. Set `transport: "sse"` to use a server with a legacy SSE endpoint.
+The default transport is Streamable HTTP. Set `transport: "sse"` for a server with a legacy SSE endpoint.
+
 Set `transport: "stdio"` to start a local server process. Set `command` to its executable path.
-Set `args` to pass command arguments. Set `env` to pass child process environment values.
+Set `args` to pass command arguments. Set `env` to pass child process values.
+
 Keep the MCP server protocol on stdout. Send server logs to stderr.
 
 ## Set authentication
 
 Set `token` to send a static bearer token. The client sends it in the `Authorization` header.
 Set `tokenProvider` to return a token for each HTTP or SSE connection. The provider also runs after a reconnect.
-Set `headers` to send extra HTTP or SSE request headers. The `token` option replaces an `Authorization` value in `headers`.
+Set `headers` to add HTTP or SSE request headers. The `token` option replaces an `Authorization` value in `headers`.
 
-The package does not perform OAuth discovery, PKCE, client registration, consent, token refresh, or user sessions.
+The package does not run OAuth discovery, PKCE, client registration, consent, token refresh, or user sessions.
 Use an OAuth2 or OIDC library in your application. Pass its access token through `tokenProvider`.
 
 ## Configure the client
@@ -51,23 +53,25 @@ Set `log` to provide optional `debug`, `warn`, and `error` functions.
 
 The client reads these variables when the matching option is not set:
 
-| Variable                   | Default                     | Purpose                              |
-| -------------------------- | --------------------------- | ------------------------------------ |
-| `MCP_URL`                  | `http://localhost:1234/mcp` | Server endpoint URL.                 |
-| `MCP_PORT`                 | `1234`                      | Port in the default URL.             |
-| `MCP_TOKEN`                | None                        | Fallback bearer token.               |
-| `MCP_RECONNECT_BASE_DELAY` | `1000`                      | First retry delay in milliseconds.   |
-| `MCP_RECONNECT_MAX_DELAY`  | `60000`                     | Maximum retry delay in milliseconds. |
+| Variable                   | Default                     | Purpose                                 |
+| -------------------------- | --------------------------- | --------------------------------------- |
+| `MCP_URL`                  | `http://localhost:1234/mcp` | Server endpoint URL.                    |
+| `MCP_PORT`                 | `1234`                      | TCP endpoint number in the default URL. |
+| `MCP_TOKEN`                | None                        | Fallback bearer token.                  |
+| `MCP_RECONNECT_BASE_DELAY` | `1000`                      | First retry interval in milliseconds.   |
+| `MCP_RECONNECT_MAX_DELAY`  | `60000`                     | Maximum retry interval in milliseconds. |
 
-The `url`, `token`, `reconnectBaseDelay`, and `reconnectMaxDelay` options take priority over their environment values.
-The `tokenProvider` option takes priority over `token` and `MCP_TOKEN`.
+The `url`, `token`, and reconnect options replace matching environment values.
+When set, `tokenProvider` supplies each token. It does not use `token` or `MCP_TOKEN`.
 
 ## Control reconnects
 
 Reconnect is enabled by default. The client retries after a transport close or error.
+
 Set `reconnect: false` to stop automatic retries. Set `maxReconnectAttempts` to limit retry count.
-Set `reconnectBaseDelay` and `reconnectMaxDelay` to set the delay range in milliseconds.
-The delay grows after each failed retry. It does not exceed `reconnectMaxDelay`.
+Set `reconnectBaseDelay` and `reconnectMaxDelay` to set the retry interval range in milliseconds.
+The retry interval increases after a failed retry. It stays no greater than `reconnectMaxDelay`.
+
 Call `close()` or `disconnect()` to close the transport and stop future retries.
 Call `reconnect()` to open a new connection after close.
 

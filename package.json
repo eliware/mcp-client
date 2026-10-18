@@ -1,6 +1,6 @@
 {
   "name": "@eliware/mcp-client",
-  "version": "12.0.0",
+  "version": "13.0.0",
   "type": "module",
   "description": "Standards-compatible pure-ESM Model Context Protocol client for Streamable HTTP, SSE, stdio, bearer authentication, OAuth token providers, and resilient reconnects.",
   "keywords": [
@@ -58,7 +58,7 @@
     "@eliware/common": "^12.0.1",
     "@eliware/mcp-server": "^12.0.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "undici": "^8.11.2"
+    "undici": "^8.12.2"
   },
   "devDependencies": {
     "@eliware/test": "^12.0.0",

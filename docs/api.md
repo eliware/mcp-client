@@ -15,7 +15,7 @@ It also exports the TypeScript types `McpClientOptions`, `ConnectedMcpClient`, a
 
 Call `await mcpClient(options)` to open a connection and initialize the MCP client.
 The function returns the official SDK client with lifecycle methods attached.
-The promise rejects when the first connection fails. Handle this error in your application.
+The promise rejects when the first connection fails. Catch this error in your application.
 
 ## Options
 
@@ -27,7 +27,7 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 | `transport`            | `"http"`, `"sse"`, or `"stdio"`                             | `"http"`                                                | SDK transport to use.                                 |
 | `token`                | `string`                                                    | `MCP_TOKEN`                                             | Static bearer token.                                  |
 | `tokenProvider`        | `() => string \| Promise<string \| undefined>`              | None                                                    | Token source for each HTTP or SSE connection.         |
-| `headers`              | `Record<string, string>`                                    | `{}`                                                    | Extra HTTP or SSE headers.                            |
+| `headers`              | `Record<string, string>`                                    | `{}`                                                    | HTTP or SSE request headers.                          |
 | `command`              | `string`                                                    | None                                                    | Executable for stdio. Required for stdio.             |
 | `args`                 | `string[]`                                                  | None                                                    | Arguments for the stdio process.                      |
 | `env`                  | `Record<string, string>`                                    | None                                                    | Environment values for the stdio process.             |
@@ -35,19 +35,19 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 | `capabilities`         | `Record<string, unknown>`                                   | `{ sampling: {} }`                                      | Client capabilities sent at initialization.           |
 | `log`                  | Object with optional `debug`, `warn`, and `error` functions | Shared logger                                           | Receives lifecycle and retry messages.                |
 | `reconnect`            | `boolean`                                                   | `true`                                                  | Enables automatic retries.                            |
-| `reconnectBaseDelay`   | `number`                                                    | `MCP_RECONNECT_BASE_DELAY` or `1000`                    | First retry delay in milliseconds.                    |
-| `reconnectMaxDelay`    | `number`                                                    | `MCP_RECONNECT_MAX_DELAY` or `60000`                    | Maximum retry delay in milliseconds.                  |
+| `reconnectBaseDelay`   | `number`                                                    | `MCP_RECONNECT_BASE_DELAY` or `1000`                    | First retry interval in milliseconds.                 |
+| `reconnectMaxDelay`    | `number`                                                    | `MCP_RECONNECT_MAX_DELAY` or `60000`                    | Maximum retry interval in milliseconds.               |
 | `maxReconnectAttempts` | `number`                                                    | `Infinity`                                              | Maximum retry count.                                  |
-| `forceIPv4`            | `boolean`                                                   | `true` on Windows; otherwise `false`                    | Uses IPv4 for HTTP and SSE.                           |
+| `forceIPv4`            | `boolean`                                                   | `true` on Windows and `false` on other systems          | Uses IPv4 for HTTP and SSE.                           |
 | `ClientClass`          | Class                                                       | Official SDK `Client`                                   | Replaces the SDK client class.                        |
 | `TransportClass`       | Class                                                       | None                                                    | Replaces transport selection with a custom transport. |
 | `HTTPTransportClass`   | Class                                                       | Official SDK Streamable HTTP class                      | Replaces the HTTP transport class.                    |
 | `SSETransportClass`    | Class                                                       | Official SDK SSE class                                  | Replaces the SSE transport class.                     |
 | `StdioTransportClass`  | Class                                                       | Official SDK stdio class                                | Replaces the stdio transport class.                   |
 
-The `token` option takes priority over an `Authorization` value in `headers`.
-The `tokenProvider` option takes priority over `token` and `MCP_TOKEN`.
-The `forceIPv4` option does not affect stdio.
+The `token` option replaces an `Authorization` value in `headers`.
+When set, `tokenProvider` supplies each token. It does not use `token` or `MCP_TOKEN`.
+The `forceIPv4` option has no effect on stdio.
 
 ## Return value
 

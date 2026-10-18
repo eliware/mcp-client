@@ -46,7 +46,7 @@ npm install @eliware/mcp-client
 
 ## Usage
 
-Connect to a remote MCP server over Streamable HTTP:
+Connect to a remote MCP server through Streamable HTTP:
 
 ```js
 import mcpClient from "@eliware/mcp-client";
@@ -74,8 +74,8 @@ Read the [troubleshooting guide](docs/troubleshooting.md) for connection help.
 
 ## Security
 
-Keep tokens and OAuth credentials in secure configuration. Use HTTPS for remote servers.
-Treat tool arguments and results as sensitive data. Do not log secrets or credential-bearing URLs.
+Keep tokens and OAuth credentials out of source files. Use HTTPS for remote servers.
+Keep tool arguments and results private. Do not put secrets or URLs with credentials in records.
 
 ## API
 

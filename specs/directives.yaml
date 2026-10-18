@@ -1,7 +1,5 @@
-version: "12.0"
+version: "13.0"
 description: Defines the scope and supported behavior of the Eliware MCP client.
-requires: []
-conflicts: []
 directives:
   - id: E-211.0
     dos:
@@ -12,8 +10,9 @@ directives:
       - Keep OAuth flows, user sessions, and token storage in the consuming application.
       - Validate repository changes with shared Eliware checks.
     donts:
-      - Do not claim support for transports or authentication flows that the package does not implement.
-      - Do not treat validation as approval to publish, release, or deploy.
+      - Do not state that the package supports a transport unless it does.
+      - Do not state that the package provides an authentication flow unless it does.
+      - Do not use validation as approval to publish, release, or deploy.
     children:
       - id: E-211.0.0
         dos:

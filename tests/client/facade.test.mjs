@@ -1,5 +1,5 @@
 import { expect, jest, test } from "@jest/globals";
-import { createClientFacade, createLifecycleFacade } from "../src/client-facade.mjs";
+import { createClientFacade, createLifecycleFacade } from "../../src/client/facade.mjs";
 
 test("forwards client calls to the current SDK client", () => {
   class Client {

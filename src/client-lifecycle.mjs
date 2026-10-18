@@ -1,5 +1,5 @@
 import { createReconnect, createTransportBinding } from "./reconnect.mjs";
-import { createLifecycleFacade } from "./client-facade.mjs";
+import { createLifecycleFacade } from "./client/facade.mjs";
 export function createClientLifecycle({
   connect,
   getTransport,
