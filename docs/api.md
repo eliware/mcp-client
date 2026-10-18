@@ -20,21 +20,23 @@ The promise rejects when the first connection fails. Catch this error in your ap
 
 All options are optional. The client uses Streamable HTTP when `transport` is not set.
 
-| Option          | Type                              | Default                                                 | Description                               |
-| --------------- | --------------------------------- | ------------------------------------------------------- | ----------------------------------------- |
-| `url`           | `string`                          | `MCP_URL` or `http://localhost:${MCP_PORT or 1234}/mcp` | Streamable HTTP endpoint.                 |
-| `transport`     | `"http"` or `"stdio"`             | `"http"`                                                | Selects the connection transport.         |
-| `token`         | `string`                          | `MCP_TOKEN`                                             | Sets a static bearer token.               |
-| `tokenProvider` | `() => string \| Promise<string>` | None                                                    | Supplies a bearer token for each request. |
-| `headers`       | `Record<string, string>`          | `{}`                                                    | Adds HTTP request headers.                |
-| `command`       | `string`                          | None                                                    | Sets the local server executable.         |
-| `args`          | `string[]`                        | None                                                    | Sets arguments for the local process.     |
-| `env`           | `Record<string, string>`          | None                                                    | Sets environment values for the process.  |
-| `clientInfo`    | SDK `Implementation`              | Package name and version                                | Sets the client identity.                 |
-| `capabilities`  | SDK `ClientCapabilities`          | `{ sampling: {} }`                                      | Sets the client capabilities.             |
+| Option          | Type                              | Default                                                 | Description                                          |
+| --------------- | --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
+| `url`           | `string`                          | `MCP_URL` or `http://localhost:${MCP_PORT or 1234}/mcp` | Streamable HTTP endpoint.                            |
+| `transport`     | `"http"` or `"stdio"`             | `"http"`                                                | Selects the connection transport.                    |
+| `token`         | `string`                          | `MCP_TOKEN`                                             | Sets a static bearer token.                          |
+| `tokenProvider` | `() => string \| Promise<string>` | None                                                    | Supplies a bearer token for each request.            |
+| `headers`       | `Record<string, string>`          | `{}`                                                    | Adds HTTP request headers.                           |
+| `command`       | `string`                          | None                                                    | Sets the local server executable.                    |
+| `args`          | `string[]`                        | None                                                    | Sets arguments for the local process.                |
+| `env`           | `Record<string, string>`          | None                                                    | Sets environment values for the process.             |
+| `clientInfo`    | SDK `Implementation`              | Package name and version                                | Sets the client identity.                            |
+| `capabilities`  | SDK `ClientCapabilities`          | `{}`                                                    | Declares capabilities that the application supports. |
 
 The `token` option replaces an `Authorization` value in `headers`.
-The client pins MCP protocol version `2026-07-28`. It does not negotiate with older versions.
+The client probes with `server/discover` and requires the server to advertise `2026-07-28`.
+The client rejects older protocol versions and does not use the 2025 handshake.
+Integration tests use `@modelcontextprotocol/server` 2.3.1, `@modelcontextprotocol/node` 2.1.1, and `@modelcontextprotocol/fastify` 2.0.1.
 
 ## Return value
 

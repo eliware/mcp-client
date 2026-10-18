@@ -31,7 +31,7 @@ Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authenticatio
 
 ## Requirements
 
-- Use Node.js 26 or later.
+- Run this package on Node.js 26 or later.
 - Provide a Streamable HTTP endpoint.
 - Provide a local server command for stdio.
 

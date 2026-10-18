@@ -10,7 +10,7 @@ export async function connectMcpClient(options = {}, dependencies = {}) {
   const client = new ClientClass(
     options.clientInfo ?? { name: packageMeta.name, version: packageMeta.version },
     {
-      capabilities: options.capabilities ?? { sampling: {} },
+      capabilities: options.capabilities ?? {},
       versionNegotiation: { mode: { pin: MCP_PROTOCOL_VERSION } },
     },
   );

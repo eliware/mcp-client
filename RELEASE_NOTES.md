@@ -4,7 +4,9 @@
 
 ### Changed
 
-- Use MCP SDK v2 and pin protocol version `2026-07-28`.
+- Require protocol version `2026-07-28` through SDK v2 discovery without older handshake support.
+- Default to no client capabilities unless the application declares them.
+- Verify interoperability with MCP server 2.3.1, Node adapter 2.1.1, and Fastify adapter 2.0.1.
 - Connect through Streamable HTTP or stdio.
 - Return the initialized SDK client and use its `close()` method.
 - Limit the public API to the named `mcpClient` function.
