@@ -23,72 +23,60 @@ Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authenticatio
 
 ## Features
 
-- Connect through Streamable HTTP or stdio.
-- Set bearer tokens, custom headers, or an async token provider.
-- Use the official SDK v2 client methods.
-- Close the client with `close()`.
-- Import the ESM package and TypeScript declarations.
-
 ## Requirements
 
-- Run this package on Node.js 26 or later.
-- Provide a Streamable HTTP endpoint.
-- Provide a local server command for stdio.
+Use Node.js 26 or later.
 
 ## Setup
 
-Install the package:
-
-```bash
-npm install @eliware/mcp-client
-```
+Install `@eliware/mcp-client` with `npm install @eliware/mcp-client`.
 
 ## Usage
-
-Connect to a remote MCP server through Streamable HTTP:
 
 ```js
 import { mcpClient } from "@eliware/mcp-client";
 
 const client = await mcpClient({ url: "https://mcp.example.com/mcp" });
-const { tools } = await client.listTools();
-console.log(tools.map(({ name }) => name));
-await client.close();
+try {
+  const { tools } = await client.listTools();
+  console.log(tools.map(({ name }) => name));
+} finally {
+  await client.close();
+}
 ```
 
-Read the [documentation index](docs/README.md), [usage guide](docs/usage.md), [API guide](docs/api.md), [troubleshooting guide](docs/troubleshooting.md), [specifications](specs/README.md), and [release notes](RELEASE_NOTES.md).
+Read the [documentation index](docs/README.md), [specifications](specs/README.md), and [release notes](RELEASE_NOTES.md).
 
 ## Development
 
-Install locked dependencies with `npm ci`. Use Node.js 26 or later and npm 12 or later.
+Run `npm ci` to install the locked dependencies.
+Read the [examples index](examples/README.md) for maintained examples.
 
 ## Testing
 
-Run `npm test` for aggregate validation. Run `npm run lint`, `npm run format:check`, `npm run audit`, `npm run pack`, or `npm run typecheck` for one check.
+Run `npm test` for aggregate validation.
+Run `npm run lint`, `npm run audit`, `npm run format`, `npm run format:check`, `npm run pack`, or `npm run typecheck` for one check.
 
 ## Troubleshooting
 
-Check the endpoint URL, transport, server permissions, and token. For stdio, send server logs to stderr.
 Read the [troubleshooting guide](docs/troubleshooting.md) for connection help.
 
 ## Security
 
-Keep tokens and OAuth credentials out of source files. Use HTTPS for remote servers.
-Keep tool arguments and results private. Do not put secrets or URLs with credentials in records.
-
 ## API
 
-Call `mcpClient(options)` to connect. The function returns an initialized SDK v2 client.
-Call `close()` when the application no longer needs the connection.
-Read the [API guide](docs/api.md) and [TypeScript declarations](src/index.d.ts) for all options and return types.
+Import `mcpClient` from `@eliware/mcp-client`. The function returns an initialized MCP SDK client.
+Read the [API guide](docs/api.md) and [TypeScript declarations](src/index.d.ts) for options and return types.
 
 ## Packaging
 
-The npm package includes `src/`, `docs/`, `examples/`, `specs/`, `README.md`, `AGENTS.md`, `LICENSE`, `RELEASE_NOTES.md`, and `.env.example`.
+The package includes `src/`, `docs/`, `README.md`, `AGENTS.md`, `LICENSE`, `RELEASE_NOTES.md`, `examples/`, `specs/`, and `.env.example`.
+Use numeric `MAJOR.MINOR.PATCH` versions and a `v<version>` tag for each release.
+Run `npm run pack` before package checks. Follow the approved Eliware Operations publication procedure.
 
 ## Examples
 
-Read the [examples index](examples/README.md) for needs, commands, results, permissions, and cleanup.
+Read the [examples index](examples/README.md) for commands, results, permissions, and cleanup.
 
 ## Support
 
