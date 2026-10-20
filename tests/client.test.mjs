@@ -86,48 +86,36 @@ async function startServer() {
   );
   const app = createMcpFastifyApp({ host: "127.0.0.1" });
   const handleRequest = toNodeHandler(handler);
+  const legacyServer = new McpServer(
+    { name: "legacy-sdk-v2-integration", version: "1.0.0" },
+    { supportedProtocolVersions: ["2025-11-25"] },
+  );
+  const legacyTransport = new NodeStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await legacyServer.server.connect(legacyTransport);
 
   app.all("/mcp", async (request, reply) => {
     await handleRequest(request.raw, reply.raw, request.body);
   });
+  app.all("/legacy", async (request, reply) => {
+    await legacyTransport.handleRequest(request.raw, reply.raw, request.body);
+  });
 
   await app.listen({ host: "127.0.0.1", port: 0 });
   const address = app.server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
   return {
-    url: `http://127.0.0.1:${address.port}/mcp`,
+    url: `${baseUrl}/mcp`,
+    legacyUrl: `${baseUrl}/legacy`,
     close: async () => {
       await handler.close();
+      await legacyServer.close();
+      await legacyTransport.close();
       await app.close();
     },
   };
 }
 
-async function startLegacyOnlyServer() {
-  const server = new McpServer(
-    { name: "legacy-sdk-v2-integration", version: "1.0.0" },
-    { supportedProtocolVersions: ["2025-11-25"] },
-  );
-  const transport = new NodeStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  await server.server.connect(transport);
-
-  const app = createMcpFastifyApp({ host: "127.0.0.1" });
-  app.all("/mcp", async (request, reply) => {
-    await transport.handleRequest(request.raw, reply.raw, request.body);
-  });
-  await app.listen({ host: "127.0.0.1", port: 0 });
-
-  const address = app.server.address();
-  return {
-    url: `http://127.0.0.1:${address.port}/mcp`,
-    close: async () => {
-      await server.close();
-      await transport.close();
-      await app.close();
-    },
-  };
-}
-
-test("connects to the official SDK v2 Fastify server with protocol 2026-07-28", async () => {
+test("uses the official SDK v2 Fastify server and rejects its legacy-only route", async () => {
   const server = await startServer();
   let client;
 
@@ -141,20 +129,14 @@ test("connects to the official SDK v2 Fastify server with protocol 2026-07-28", 
     await expect(client.callTool({ name: "health", arguments: {} })).resolves.toMatchObject({
       content: [{ type: "text", text: "ready" }],
     });
-  } finally {
-    await client?.close();
-    await server.close();
-  }
-});
 
-test("rejects a server that supports only the 2025 protocol", async () => {
-  const server = await startLegacyOnlyServer();
-
-  try {
-    await expect(mcpClient({ url: server.url })).rejects.toThrow(
+    await client.close();
+    client = undefined;
+    await expect(mcpClient({ url: server.legacyUrl })).rejects.toThrow(
       /pinned protocol version 2026-07-28/,
     );
   } finally {
+    await client?.close();
     await server.close();
   }
 });
