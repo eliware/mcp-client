@@ -96,7 +96,8 @@ The client reads these values when the matching option is not set:
 
 The `url` option sets the endpoint directly. It prevents use of `MCP_URL` or `MCP_PORT`.
 The `token` option replaces `MCP_TOKEN` and any `Authorization` value in `headers`.
-When you set `tokenProvider`, its token replaces `token`, `MCP_TOKEN`, and any `Authorization` value in `headers`.
+When `tokenProvider` returns a token, the SDK sends it as a bearer value and does not use `token`, `MCP_TOKEN`, or `Authorization` from `headers`.
+When the provider returns an empty string, the SDK keeps the configured `Authorization` header and does not use `token` or `MCP_TOKEN`.
 
 ## Manage connection errors
 
