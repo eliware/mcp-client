@@ -4,13 +4,15 @@
 
 Check that `url` points to the server endpoint. Use the path that the server provides.
 Check the server status, network access, and required bearer token.
+Check that the server supports protocol version `2026-07-28` through `server/discover`.
 For local defaults, check `MCP_URL` and `MCP_PORT`.
 
 ## Authentication fails
 
 Check that the token is valid and that the server accepts bearer authentication.
-Check that `tokenProvider` returns a string for each request.
-Check the order of `token`, `tokenProvider`, and `Authorization` in `headers`.
+Check that `tokenProvider` returns a valid token for each request.
+When you set `tokenProvider`, its token replaces values from `token` and `MCP_TOKEN`.
+The `token` option replaces an `Authorization` value in `headers`.
 
 ## stdio connection fails
 
@@ -20,7 +22,8 @@ Keep MCP protocol messages on stdout. Send server logs to stderr.
 
 ## Protocol version does not match
 
-Use an MCP server that supports the current protocol version. The client does not connect to older versions.
+Use an MCP server that supports protocol version `2026-07-28`.
+The client does not connect to a server that supports only an older version.
 
 ## Check the package
 

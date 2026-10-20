@@ -13,8 +13,8 @@ The package exports `mcpClient` and the TypeScript type `McpClientOptions`.
 ## Connect
 
 Call `await mcpClient(options)` to open a connection and initialize the MCP client.
-The function returns the official SDK v2 client.
-The promise rejects when the first connection fails. Catch this error in your application.
+The function returns the official SDK v2 `Client` instance.
+The promise rejects when connection or protocol negotiation fails. Catch this error in your application.
 
 ## Options
 
@@ -24,23 +24,39 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 | --------------- | --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
 | `url`           | `string`                          | `MCP_URL` or `http://localhost:${MCP_PORT or 1234}/mcp` | Streamable HTTP endpoint.                            |
 | `transport`     | `"http"` or `"stdio"`             | `"http"`                                                | Selects the connection transport.                    |
-| `token`         | `string`                          | `MCP_TOKEN`                                             | Sets a static bearer token.                          |
-| `tokenProvider` | `() => string \| Promise<string>` | None                                                    | Supplies a bearer token for each request.            |
+| `token`         | `string`                          | `MCP_TOKEN`                                             | Sets a static bearer token for HTTP.                 |
+| `tokenProvider` | `() => string \| Promise<string>` | None                                                    | Supplies a bearer token for each HTTP request.       |
 | `headers`       | `Record<string, string>`          | `{}`                                                    | Adds HTTP request headers.                           |
-| `command`       | `string`                          | None                                                    | Sets the local server executable.                    |
+| `command`       | `string`                          | None                                                    | Sets the local server executable for stdio.          |
 | `args`          | `string[]`                        | None                                                    | Sets arguments for the local process.                |
-| `env`           | `Record<string, string>`          | None                                                    | Sets environment values for the process.             |
+| `env`           | `Record<string, string>`          | None                                                    | Sets environment values for the local process.       |
 | `clientInfo`    | SDK `Implementation`              | Package name and version                                | Sets the client identity.                            |
 | `capabilities`  | SDK `ClientCapabilities`          | `{}`                                                    | Declares capabilities that the application supports. |
 
-The `token` option replaces an `Authorization` value in `headers`.
-The client probes with `server/discover` and requires the server to advertise `2026-07-28`.
-The client rejects older protocol versions and does not use the 2025 handshake.
-Integration tests use `@modelcontextprotocol/server` 2.3.1, `@modelcontextprotocol/node` 2.1.1, and `@modelcontextprotocol/fastify` 2.0.1.
+## Transport and authentication options
+
+Set `url` for HTTP connections.
+Set `command` for stdio connections. The client rejects stdio options without a command.
+Set `token` to replace an `Authorization` value in `headers` with a bearer value.
+Set `tokenProvider` to supply the bearer value for HTTP requests.
+When you set `tokenProvider`, its token replaces values from `token` and `MCP_TOKEN`.
+
+## Protocol support
+
+The client probes `server/discover` and requires protocol version `2026-07-28`.
 
 ## Return value
 
-The return value provides the SDK v2 client methods. Call `close()` to end the connection.
+The return value provides the SDK v2 client methods.
+Use methods such as `listTools()` and `callTool()` to interact with a server.
+Call `close()` to end the connection and release its transport resources.
+
+## Errors
+
+The promise rejects if the client cannot connect or negotiate the required protocol.
+Client methods reject when the server or transport reports a request error.
+Catch these errors in the application.
+Close the client in a `finally` clause after the connection opens.
 
 ## TypeScript
 
