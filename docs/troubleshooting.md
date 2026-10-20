@@ -11,7 +11,7 @@ For local defaults, check `MCP_URL` and `MCP_PORT`.
 
 Check that the token is valid and that the server accepts bearer authentication.
 Check that `tokenProvider` returns a valid token for each request.
-When you set `tokenProvider`, its token replaces values from `token` and `MCP_TOKEN`.
+When you set `tokenProvider`, its token replaces `token`, `MCP_TOKEN`, and any `Authorization` value in `headers`.
 The `token` option replaces an `Authorization` value in `headers`.
 
 ## stdio connection fails

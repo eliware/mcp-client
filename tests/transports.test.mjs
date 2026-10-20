@@ -39,7 +39,10 @@ test("creates Streamable HTTP with bearer and custom headers", () => {
 test("uses the token provider for HTTP requests", () => {
   const tokenProvider = jest.fn(async () => "rotated");
   const transport = createClientTransport(
-    { tokenProvider, headers: { "x-app": "test" } },
+    {
+      tokenProvider,
+      headers: { "x-app": "test", Authorization: "Basic stale", authorization: "Basic old" },
+    },
     { HTTPTransportClass: HTTP },
   );
   expect(transport.options.authProvider.token).toBe(tokenProvider);

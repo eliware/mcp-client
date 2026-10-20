@@ -25,7 +25,11 @@ export function createClientTransport(options, dependencies = {}) {
   return new HTTPClass(new URL(url), {
     authProvider,
     requestInit: {
-      headers: resolveAuthHeaders(tokenProvider ? undefined : token, headers),
+      headers: resolveAuthHeaders(
+        tokenProvider ? undefined : token,
+        headers,
+        Boolean(tokenProvider),
+      ),
     },
   });
 }

@@ -39,7 +39,7 @@ Set `url` for HTTP connections.
 Set `command` for stdio connections. The client rejects stdio options without a command.
 Set `token` to replace an `Authorization` value in `headers` with a bearer value.
 Set `tokenProvider` to supply the bearer value for HTTP requests.
-When you set `tokenProvider`, its token replaces values from `token` and `MCP_TOKEN`.
+When you set `tokenProvider`, its token replaces `token`, `MCP_TOKEN`, and any `Authorization` value in `headers`.
 
 ## Protocol support
 

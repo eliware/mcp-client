@@ -96,7 +96,7 @@ The client reads these values when the matching option is not set:
 
 The `url` option sets the endpoint directly. It prevents use of `MCP_URL` or `MCP_PORT`.
 The `token` option replaces `MCP_TOKEN` and any `Authorization` value in `headers`.
-When you set `tokenProvider`, its token replaces values from `token` and `MCP_TOKEN`.
+When you set `tokenProvider`, its token replaces `token`, `MCP_TOKEN`, and any `Authorization` value in `headers`.
 
 ## Manage connection errors
 
