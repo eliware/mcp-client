@@ -23,7 +23,7 @@ Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authenticatio
 
 ## Features
 
-Connect through Streamable HTTP or stdio. Use bearer tokens, custom HTTP headers, token providers, and structured logs.
+Connect to MCP servers through Streamable HTTP or stdio. Use bearer tokens, custom HTTP headers, token providers, and structured logs.
 
 ## Requirements
 
@@ -31,7 +31,7 @@ Use Node.js 26 or later.
 
 ## Setup
 
-Install `@eliware/mcp-client` with `npm install @eliware/mcp-client`.
+Install the package with `npm install @eliware/mcp-client`.
 
 ## Usage
 
@@ -39,9 +39,9 @@ Install `@eliware/mcp-client` with `npm install @eliware/mcp-client`.
 import { mcpClient } from "@eliware/mcp-client";
 
 const client = await mcpClient({ url: "https://mcp.example.com/mcp" });
+
 try {
-  const { tools } = await client.listTools();
-  console.log(tools.map(({ name }) => name));
+  console.log(await client.listTools());
 } finally {
   await client.close();
 }
@@ -51,13 +51,11 @@ Read the [documentation index](docs/README.md), [specifications](specs/README.md
 
 ## Development
 
-Run `npm ci` to install the locked dependencies.
-Read the [examples index](examples/README.md) for maintained examples.
+Run `npm ci` to install locked dependencies. Read [repository specifications](specs/README.md) for contributor requirements.
 
 ## Testing
 
 Run `npm test` for aggregate validation.
-Run `npm run lint`, `npm run audit`, `npm run format`, `npm run format:check`, `npm run pack`, or `npm run typecheck` for one check.
 
 ## Troubleshooting
 
@@ -65,18 +63,17 @@ Read the [troubleshooting guide](docs/troubleshooting.md) for connection help.
 
 ## Security
 
-Keep access tokens and private server data out of source files and logs.
+Keep access tokens, credentials, and private server data out of source files and logs.
 
 ## API
 
-Import `mcpClient` from `@eliware/mcp-client`. The function returns an initialized MCP SDK client.
-Read the [API guide](docs/api.md) and [TypeScript declarations](src/index.d.ts) for options and return types.
+Import `mcpClient` from `@eliware/mcp-client`. Read the [API guide](docs/api.md) for options and return types.
 
 ## Packaging
 
 The package includes `src/`, `docs/`, `README.md`, `AGENTS.md`, `LICENSE`, `RELEASE_NOTES.md`, `examples/`, `specs/`, and `.env.example`.
 Use numeric `MAJOR.MINOR.PATCH` versions and a `v<version>` tag for each release.
-Run `npm run pack` before package checks. Follow the approved Eliware Operations publication procedure.
+Run `npm run pack` to check package contents. Publish only after approved release steps.
 
 ## Examples
 

@@ -2,17 +2,15 @@
 
 ## Project
 
-Use Node.js 26 or later. Use native ESM.
+Maintain the Eliware MCP client package. Use Node.js 26 or later and native ESM.
 
 ## Scope and boundaries
 
-Maintain the MCP client package. Keep server access, OAuth flows, tokens, and user sessions in client applications.
+Keep server access, OAuth flows, tokens, and user sessions in client applications.
 
 ## Layout
 
-Keep source modules under `src/`. Keep tests under `tests/` and fixtures under `test-fixtures/`.
-Keep examples under `examples/` and index each example.
-Mirror each source module under `src/` with one same-path test under `tests/`.
+Use README.md and specs/README.md to find maintained files.
 
 ## Development
 
@@ -22,7 +20,7 @@ Give each source module and test module one purpose.
 
 Run `npm test` for aggregate validation.
 Run `npm run lint` for lint checks.
-Run `npm run audit` for audit checks.
+Run `npm run audit` for dependency checks.
 Run `npm run format` to format files.
 Run `npm run format:check` to check formatting.
 Run `npm run typecheck` to check TypeScript declarations.
@@ -34,7 +32,7 @@ Send stdio server logs to stderr.
 
 ## Changes
 
-Keep public documents current. Follow shared conventions.
+Keep each document in the repository that owns its content. Update its nearest index when you add a document.
 
 ## Library
 
@@ -46,5 +44,4 @@ Run the full `npm test` suite for final validation before a commit, milestone, o
 
 ## npm publication
 
-Run `npm run pack` before package checks.
-Follow the approved Eliware Operations publication procedure.
+Run `npm run pack` to check package contents. Publish only after approved release steps.
