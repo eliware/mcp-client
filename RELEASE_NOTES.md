@@ -1,5 +1,14 @@
 # Release Notes
 
+## 15.0.0 — 2026-10-21
+
+### Changed
+
+- Update the client package and logging dependency to version 15.0.0.
+- Use Eliware Test 15.0 for repository validation.
+- Document defaults and required environment values for client and example workflows.
+- Align repository instructions with Eliware Convention 15.0.
+
 ## 14.0.0 — 2026-10-21
 
 ### Added

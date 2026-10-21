@@ -126,11 +126,11 @@ The logger supports `error`, `warn`, `info`, `http`, `verbose`, `debug`, and `si
 
 The client reads these values when the matching option is not set:
 
-| Variable    | Default | Purpose                                                   |
-| ----------- | ------- | --------------------------------------------------------- |
-| `MCP_URL`   | None    | Sets the default server endpoint URL.                     |
-| `MCP_PORT`  | `1234`  | Sets the port in the default URL when `MCP_URL` is unset. |
-| `MCP_TOKEN` | None    | Sets the bearer token when `token` is unset.              |
+| Variable    | Default | Required status | Purpose                                                      |
+| ----------- | ------- | --------------- | ------------------------------------------------------------ |
+| `MCP_URL`   | None    | Optional        | Sets the endpoint URL, such as `https://server.example/mcp`. |
+| `MCP_PORT`  | `1234`  | Optional        | Sets the default URL port when `MCP_URL` is unset.           |
+| `MCP_TOKEN` | None    | Optional        | Sets a bearer token, such as `your-mcp-token-here`.          |
 
 Set these values in the process environment before you start the application.
 The client does not load `.env` files.

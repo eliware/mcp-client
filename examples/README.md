@@ -5,10 +5,20 @@ Use these examples with an MCP server that you may access. The HTTP examples nee
 ## Requirements
 
 - Use Node.js 26 or later.
-- Set `MCP_URL` to a reachable Streamable HTTP endpoint before you run an HTTP example.
-- Set `MCP_TOKEN` when the server requires a bearer token.
-- Set `MCP_COMMAND` and `MCP_ARGS` before you run the stdio example.
-- Set `MCP_ARGS` to a JSON array of strings. Use `[]` when the server command needs no arguments.
+- Use a reachable Streamable HTTP endpoint for each HTTP example.
+- Install or build a local MCP server that supports stdio before you run the stdio example.
+
+## Environment values
+
+Set these values in the process environment before you run an example.
+
+| Variable      | Default                     | Required status                | Example value                         |
+| ------------- | --------------------------- | ------------------------------ | ------------------------------------- |
+| `MCP_URL`     | `http://localhost:1234/mcp` | Optional                       | `https://your-mcp-server.example/mcp` |
+| `MCP_PORT`    | `1234`                      | Optional                       | `4321`                                |
+| `MCP_TOKEN`   | None                        | Optional                       | `your-mcp-token-here`                 |
+| `MCP_COMMAND` | None                        | Required for the stdio example | `node`                                |
+| `MCP_ARGS`    | None                        | Required for the stdio example | `["/path/to/server.mjs","--stdio"]`   |
 
 The package does not load `.env` files. Set each value in the process environment before you run an example.
 
@@ -61,7 +71,7 @@ Run `npm explore @eliware/mcp-client -- node examples/<name>.mjs` to run another
 
 ## Run the stdio example
 
-Install or build an MCP server that supports stdio. Set `MCP_COMMAND` to its executable. Set `MCP_ARGS` to a JSON array of string arguments. Replace the sample path with the server path on your computer.
+Set `MCP_COMMAND` to the executable for your local server. Set `MCP_ARGS` to a JSON array of strings. Use `[]` when the command needs no arguments. Replace the sample path with the server path on your computer.
 
 ```powershell
 $env:MCP_COMMAND = 'node'

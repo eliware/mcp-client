@@ -14,7 +14,6 @@ Use these guides to install the package, connect to an MCP server, and use the c
 - [Usage](usage.md) covers installation, HTTP, stdio, authentication, logging, and cleanup.
 - [API](api.md) lists every public option, its default, and the returned SDK client.
 - [Troubleshooting](troubleshooting.md) covers common connection, authentication, and protocol failures.
-- [Migration to version 14](migration-v14.md) explains changes from version 12 or earlier.
 
 ## Package behavior
 
