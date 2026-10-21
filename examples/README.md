@@ -61,7 +61,7 @@ Run `npm explore @eliware/mcp-client -- node examples/<name>.mjs` to run another
 
 ## Run the stdio example
 
-Set `MCP_COMMAND` to an installed executable that starts an MCP server. Set `MCP_ARGS` to a JSON array of string arguments. Use the actual server path on your computer.
+Install or build an MCP server that supports stdio. Set `MCP_COMMAND` to its executable. Set `MCP_ARGS` to a JSON array of string arguments. Replace the sample path with the server path on your computer.
 
 ```powershell
 $env:MCP_COMMAND = 'node'
@@ -79,15 +79,15 @@ The JSON array in `MCP_ARGS` becomes the argument list for `MCP_COMMAND`. The ex
 
 ## Commands and results
 
-Run each command from the repository root for a checkout. Run each command through `npm explore` for an installed package.
+Run checkout commands from the repository root. Run installed-package commands from the consumer application directory.
 
-| Example                              | Command                            | Expected result                                |
-| ------------------------------------ | ---------------------------------- | ---------------------------------------------- |
-| [HTTP](http.mjs)                     | `node examples/http.mjs`           | Lists tools from the configured HTTP server.   |
-| [Custom headers](custom-headers.mjs) | `node examples/custom-headers.mjs` | Lists tools with the configured custom header. |
-| [Static token](static-token.mjs)     | `node examples/static-token.mjs`   | Lists tools with the configured bearer token.  |
-| [stdio](stdio.mjs)                   | `node examples/stdio.mjs`          | Lists tools from the configured local server.  |
-| [Token provider](token-provider.mjs) | `node examples/token-provider.mjs` | Lists tools with a token from `MCP_TOKEN`.     |
+| Example                              | Checkout command                   | Installed-package command                                             | Expected result                                |
+| ------------------------------------ | ---------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------- |
+| [HTTP](http.mjs)                     | `node examples/http.mjs`           | `npm explore @eliware/mcp-client -- node examples/http.mjs`           | Lists tools from the configured HTTP server.   |
+| [Custom headers](custom-headers.mjs) | `node examples/custom-headers.mjs` | `npm explore @eliware/mcp-client -- node examples/custom-headers.mjs` | Lists tools with the configured custom header. |
+| [Static token](static-token.mjs)     | `node examples/static-token.mjs`   | `npm explore @eliware/mcp-client -- node examples/static-token.mjs`   | Lists tools with the configured bearer token.  |
+| [stdio](stdio.mjs)                   | `node examples/stdio.mjs`          | `npm explore @eliware/mcp-client -- node examples/stdio.mjs`          | Lists tools from the configured local server.  |
+| [Token provider](token-provider.mjs) | `node examples/token-provider.mjs` | `npm explore @eliware/mcp-client -- node examples/token-provider.mjs` | Lists tools with a token from `MCP_TOKEN`.     |
 
 ## Permissions
 
