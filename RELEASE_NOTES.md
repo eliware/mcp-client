@@ -2,27 +2,39 @@
 
 ## 14.0.0 — 2026-10-21
 
+### Added
+
+- Add structured connection logging through an injectable `@eliware/log` logger.
+- Add a migration guide for version 12 and earlier.
+- Verify integration with MCP server 2.3.1, Node adapter 2.1.1, and Fastify adapter 2.0.1.
+
 ### Changed
 
-- Add structured connection logs with an injectable `@eliware/log` logger.
-- Require protocol version `2026-07-28` through SDK v2 discovery without older handshake support.
+- Replace the SDK v1 dependency with the official SDK v2 client and transport packages.
+- Require protocol version `2026-07-28` through `server/discover`.
 - Default to no client capabilities unless the application declares them.
-- Verify interoperability with MCP server 2.3.1, Node adapter 2.1.1, and Fastify adapter 2.0.1.
-- Connect through Streamable HTTP or stdio.
-- Return the initialized SDK client and use its `close()` method.
-- Limit the public API to the named `mcpClient` function.
-- Remove SDK v1, SSE, reconnect wrappers, helper exports, and package entries for removed features.
-- Update examples, API guides, package metadata, and tests for the version 14 package.
-- Align repository rules with Eliware Convention 14.0 and current Knit and npm workflows.
-- Expand end-user documentation and add migration guidance for version 14.
-- Ignore static `Authorization` headers when `tokenProvider` is set.
+- Support Streamable HTTP and stdio. Return the initialized SDK client and use its `close()` method.
+- Use `tokenProvider` for each HTTP request and ignore static credentials when the application sets it.
+- Update package metadata and dependencies for version 14, with `@eliware/log` and `@modelcontextprotocol/client`.
+- Update examples, API guides, troubleshooting guidance, and migration documentation.
+- Align repository rules, CI, npm publication, and Knit workflows with Eliware Convention 14.0.
 
 ### Breaking changes
 
 - Import `mcpClient` by name.
-- Remove the default export, `disconnect()`, `reconnect()`, and `mcpConnection` properties.
-- Remove SSE transport support and all SDK v1 protocol negotiation.
-- Use a server that supports the current MCP protocol version.
+- Remove the default export, helper exports, `disconnect()`, `reconnect()`, and `mcpConnection` properties.
+- Remove SSE, automatic reconnect, and SDK v1 protocol negotiation.
+- Require a server that supports protocol version `2026-07-28`.
+- Send no `Authorization` header when `tokenProvider` returns an empty string. The client ignores `token`, `MCP_TOKEN`, and `Authorization` in `headers` when the application sets a provider.
+- Declare client capabilities explicitly when an application requires them.
+- Remove `MCP_RECONNECT_BASE_DELAY` and `MCP_RECONNECT_MAX_DELAY`.
+
+### Migration
+
+- Import `mcpClient` by name and remove imports for deleted helpers.
+- Replace SSE and reconnect options with Streamable HTTP or stdio and call the SDK client's `close()` method.
+- Set `clientInfo` and `capabilities` through `McpClientOptions` when the application requires other values.
+- Use `tokenProvider` without a static `Authorization` header. Return a token for authenticated requests.
 
 ## 12.0.0 — 2026-10-13
 
