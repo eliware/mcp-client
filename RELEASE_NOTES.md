@@ -1,6 +1,6 @@
 # Release Notes
 
-## 13.0.0 — 2026-10-17
+## 14.0.0 — 2026-10-21
 
 ### Changed
 
@@ -11,8 +11,10 @@
 - Return the initialized SDK client and use its `close()` method.
 - Limit the public API to the named `mcpClient` function.
 - Remove SDK v1, SSE, reconnect wrappers, helper exports, and package entries for removed features.
-- Update examples, API guides, package metadata, and tests for the v13 client API.
-- Align repository rules with Eliware Convention 13.0 and current Knit and npm workflows.
+- Update examples, API guides, package metadata, and tests for the version 14 package.
+- Align repository rules with Eliware Convention 14.0 and current Knit and npm workflows.
+- Expand end-user documentation and add migration guidance for version 14.
+- Keep custom `Authorization` headers when `tokenProvider` returns an empty string.
 
 ### Breaking changes
 

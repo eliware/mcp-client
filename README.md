@@ -23,6 +23,8 @@ Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authenticatio
 
 ## Features
 
+Connect through Streamable HTTP or stdio. Use bearer tokens, custom HTTP headers, or token providers.
+
 ## Requirements
 
 Use Node.js 26 or later.
@@ -62,6 +64,8 @@ Run `npm run lint`, `npm run audit`, `npm run format`, `npm run format:check`, `
 Read the [troubleshooting guide](docs/troubleshooting.md) for connection help.
 
 ## Security
+
+Keep access tokens and private server data out of source files and logs.
 
 ## API
 

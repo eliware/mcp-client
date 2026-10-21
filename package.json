@@ -1,6 +1,6 @@
 {
   "name": "@eliware/mcp-client",
-  "version": "13.0.0",
+  "version": "14.0.0",
   "type": "module",
   "description": "Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authentication.",
   "keywords": [
@@ -55,7 +55,7 @@
     "@modelcontextprotocol/client": "^2.3.1"
   },
   "devDependencies": {
-    "@eliware/test": "^13.0.0",
+    "@eliware/test": "^14.0.0",
     "@modelcontextprotocol/fastify": "2.0.1",
     "@modelcontextprotocol/node": "2.1.1",
     "@modelcontextprotocol/server": "2.3.1",

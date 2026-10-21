@@ -1,4 +1,4 @@
-version: "13.0"
+version: "14.0"
 description: Defines order for the shared npm and GHCR publication workflow.
 orders:
   profiles:
