@@ -15,7 +15,7 @@
 - Update examples, API guides, package metadata, and tests for the version 14 package.
 - Align repository rules with Eliware Convention 14.0 and current Knit and npm workflows.
 - Expand end-user documentation and add migration guidance for version 14.
-- Keep custom `Authorization` headers when `tokenProvider` returns an empty string.
+- Ignore static `Authorization` headers when `tokenProvider` is set.
 
 ### Breaking changes
 

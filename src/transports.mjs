@@ -21,7 +21,14 @@ export function createClientTransport(options, dependencies = {}) {
 
   const HTTPClass = dependencies.HTTPTransportClass ?? StreamableHTTPClientTransport;
   const url = options.url ?? defaultUrl();
-  const authProvider = tokenProvider ? { token: tokenProvider } : undefined;
+  const authProvider = tokenProvider
+    ? {
+        token: async () => {
+          const providedToken = await tokenProvider();
+          return providedToken || undefined;
+        },
+      }
+    : undefined;
   return new HTTPClass(new URL(url), {
     authProvider,
     requestInit: {

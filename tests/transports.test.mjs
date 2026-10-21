@@ -36,7 +36,7 @@ test("creates Streamable HTTP with bearer and custom headers", () => {
   });
 });
 
-test("uses the token provider and omits static authorization headers", () => {
+test("uses the token provider and omits static authorization headers", async () => {
   const tokenProvider = jest.fn(async () => "rotated");
   const transport = createClientTransport(
     {
@@ -46,8 +46,17 @@ test("uses the token provider and omits static authorization headers", () => {
     },
     { HTTPTransportClass: HTTP },
   );
-  expect(transport.options.authProvider.token).toBe(tokenProvider);
+  await expect(transport.options.authProvider.token()).resolves.toBe("rotated");
+  expect(tokenProvider).toHaveBeenCalled();
   expect(transport.options.requestInit.headers).toEqual({ "x-app": "test" });
+});
+
+test("normalizes an empty token provider result", async () => {
+  const tokenProvider = jest.fn(async () => "");
+  const transport = createClientTransport({ tokenProvider }, { HTTPTransportClass: HTTP });
+
+  await expect(transport.options.authProvider.token()).resolves.toBeUndefined();
+  expect(transport.options.requestInit.headers).toEqual({});
 });
 
 test("uses the environment token when options omit a token", () => {
