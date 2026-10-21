@@ -29,6 +29,7 @@ try {
 
 The default endpoint is `http://localhost:1234/mcp`. Set `url` to use a different endpoint.
 The server must support protocol version `2026-07-28` through `server/discover`.
+Set `MCP_URL` to change the default endpoint. Set `MCP_PORT` to change the default port when `MCP_URL` is unset.
 
 ## Call a tool
 
@@ -43,6 +44,18 @@ console.log(result);
 ```
 
 Check the server's tool description before you send input. A tool can change data or cause other effects.
+
+## Use other server features
+
+The returned object is the official SDK v2 `Client`. Use its methods to list and read resources or to list and get prompts.
+The server may not support every method. Check the server response before you call a method.
+
+```js
+const { resources } = await client.listResources();
+const resource = await client.readResource({ uri: resources[0].uri });
+const { prompts } = await client.listPrompts();
+const prompt = await client.getPrompt({ name: prompts[0].name });
+```
 
 ## Connect through stdio
 
@@ -77,6 +90,11 @@ The package does not run OAuth discovery, consent, token refresh, or user sessio
 Use an OAuth library in your application. Return its access token from `tokenProvider`.
 Use `tokenProvider` when the access token can change. The provider runs for HTTP requests.
 
+The token provider can return a string or a promise that resolves to a string.
+When it returns a token, the SDK sends that value as a bearer token.
+When it returns an empty string, the SDK uses `Authorization` from `headers` when you set it.
+The client does not use `token` or `MCP_TOKEN` when you set `tokenProvider`.
+
 Use `headers` for more HTTP headers. These options do not apply to stdio.
 
 ## Configure the client
@@ -100,6 +118,10 @@ const client = await mcpClient({ url: "https://mcp.example.com/mcp", logger });
 
 The client logs the operation and transport. It does not log URLs, headers, tokens, command arguments, or error messages.
 
+The client logs connection start at `debug` and connection success at `info`.
+It logs connection failure at `error` and cleanup failure at `warn`.
+The logger supports `error`, `warn`, `info`, `http`, `verbose`, `debug`, and `silly` levels.
+
 ## Set environment values
 
 The client reads these values when the matching option is not set:
@@ -109,6 +131,9 @@ The client reads these values when the matching option is not set:
 | `MCP_URL`   | None    | Sets the default server endpoint URL.                     |
 | `MCP_PORT`  | `1234`  | Sets the port in the default URL when `MCP_URL` is unset. |
 | `MCP_TOKEN` | None    | Sets the bearer token when `token` is unset.              |
+
+Set these values in the process environment before you start the application.
+The client does not load `.env` files.
 
 The `url` option sets the endpoint directly. It prevents use of `MCP_URL` or `MCP_PORT`.
 The `token` option replaces `MCP_TOKEN` and any `Authorization` value in `headers`.

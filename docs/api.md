@@ -65,9 +65,28 @@ The client probes `server/discover` and requires protocol version `2026-07-28`.
 
 ## Return value
 
-The return value provides the SDK v2 client methods.
-Use methods such as `listTools()` and `callTool()` to interact with a server.
+The return value is the initialized SDK v2 `Client` instance.
+Use methods such as `listTools()`, `callTool()`, `listResources()`, `readResource()`, `listPrompts()`, and `getPrompt()` to interact with a server.
+The server may not support every method.
 Call `close()` to end the connection and release its transport resources.
+
+## Connection lifecycle
+
+Await `mcpClient()` before you call client methods.
+The promise rejects if setup, connection, or protocol negotiation fails.
+After `mcpClient()` resolves, call `close()` when the application no longer uses the client.
+Use `try` and `finally` to close the client when an operation fails.
+
+```js
+const client = await mcpClient({ url: "https://mcp.example.com/mcp" });
+
+try {
+  const { tools } = await client.listTools();
+  console.log(tools);
+} finally {
+  await client.close();
+}
+```
 
 ## Errors
 
@@ -78,5 +97,14 @@ Close the client in a `finally` clause after the connection opens.
 
 ## TypeScript
 
-Use `McpClientOptions` for options and the SDK `Client` type for the return value.
-Read the [type declarations](../src/index.d.ts) for exact TypeScript types.
+The package includes TypeScript declarations.
+Import `McpClientOptions` from this package and import `Client` from `@modelcontextprotocol/client` for explicit types.
+The [type declarations](../src/index.d.ts) define the package API.
+
+```ts
+import { mcpClient } from "@eliware/mcp-client";
+import type { McpClientOptions } from "@eliware/mcp-client";
+
+const options: McpClientOptions = { url: "https://mcp.example.com/mcp" };
+const client = await mcpClient(options);
+```

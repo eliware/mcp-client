@@ -6,6 +6,7 @@ Check that `url` points to the server endpoint. Use the path that the server pro
 Check the server status, network access, and required bearer token.
 Check that the server supports protocol version `2026-07-28` through `server/discover`.
 For local defaults, check `MCP_URL` and `MCP_PORT`.
+Set `url` to override both environment values.
 
 ## Authentication fails
 
@@ -20,6 +21,7 @@ The `token` option replaces an `Authorization` value in `headers`.
 Check that `command` names an installed executable. Check that `args` match the server command.
 Pass required child process values with `env`.
 Keep MCP protocol messages on stdout. Send server logs to stderr.
+Set `transport` to `stdio` and provide a non-empty `command`.
 
 ## Protocol version does not match
 
@@ -29,3 +31,9 @@ The client does not connect to a server that supports only an older version.
 ## Check the package
 
 Run `npm test` from a package checkout. Check the [usage guide](usage.md) and [API guide](api.md).
+
+## Logs do not show connection starts
+
+The default logger uses the `info` level, so it omits `debug` records.
+Pass a logger from `@eliware/log` with `level: "debug"` to include connection starts.
+Check the configured logger level and transports when expected records do not appear.
