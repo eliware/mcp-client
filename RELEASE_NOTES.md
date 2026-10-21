@@ -17,6 +17,7 @@
 - Use `tokenProvider` for each HTTP request and ignore static credentials when the application sets it.
 - Update package metadata and dependencies for version 14, with `@eliware/log` and `@modelcontextprotocol/client`.
 - Update examples, API guides, troubleshooting guidance, and migration documentation.
+- Document checkout and published-package setup for each example, with process environment setup for stdio.
 - Align repository rules, CI, npm publication, and Knit workflows with Eliware Convention 14.0.
 
 ### Breaking changes

@@ -1,27 +1,98 @@
 # Examples
 
+Use these examples with an MCP server that you may access. The HTTP examples need a reachable Streamable HTTP endpoint. The stdio example needs a local MCP server command.
+
 ## Requirements
 
-Use Node.js 26 or later. Install the package dependencies with `npm ci`.
-Set `MCP_URL` to a Streamable HTTP endpoint.
-Set `MCP_TOKEN` when the server requires a bearer token.
-Set `MCP_COMMAND` and `MCP_ARGS` for the stdio example when needed.
+- Use Node.js 26 or later.
+- Set `MCP_URL` to a reachable Streamable HTTP endpoint before you run an HTTP example.
+- Set `MCP_TOKEN` when the server requires a bearer token.
+- Set `MCP_COMMAND` and `MCP_ARGS` before you run the stdio example.
+- Set `MCP_ARGS` to a JSON array of strings. Use `[]` when the server command needs no arguments.
 
-## Permissions
+The package does not load `.env` files. Set each value in the process environment before you run an example.
 
-Use only servers that your account may access. Provide only the credentials that the server requires.
-The examples make MCP requests. They do not change server data.
+## Run from a repository checkout
+
+Run checkout commands from the repository root. The checkout contains `package-lock.json`, so `npm ci` installs the locked dependencies.
+
+```bash
+git clone https://github.com/eliware/mcp-client.git
+cd mcp-client
+npm ci
+```
+
+Set an HTTP endpoint and run an HTTP example:
+
+```powershell
+$env:MCP_URL = 'https://your-mcp-server.example/mcp'
+node examples/http.mjs
+```
+
+```sh
+export MCP_URL='https://your-mcp-server.example/mcp'
+node examples/http.mjs
+```
+
+Set `MCP_TOKEN` before you run an example that needs bearer authentication. Set `MCP_URL` to the endpoint that your server provides.
+
+## Run from an installed package
+
+Run these commands from a consumer application directory. `npm install` installs the published package and creates the consumer application's lockfile.
+
+```bash
+npm init -y
+npm install @eliware/mcp-client
+```
+
+Set `MCP_URL` in the same shell, then run an example from the installed package with `npm explore`:
+
+```powershell
+$env:MCP_URL = 'https://your-mcp-server.example/mcp'
+npm explore @eliware/mcp-client -- node examples/http.mjs
+```
+
+```sh
+export MCP_URL='https://your-mcp-server.example/mcp'
+npm explore @eliware/mcp-client -- node examples/http.mjs
+```
+
+Run `npm explore @eliware/mcp-client -- node examples/<name>.mjs` to run another packaged example. Do not run `npm ci` in an installed package because the package does not include `package-lock.json`.
+
+## Run the stdio example
+
+Set `MCP_COMMAND` to an installed executable that starts an MCP server. Set `MCP_ARGS` to a JSON array of string arguments. Use the actual server path on your computer.
+
+```powershell
+$env:MCP_COMMAND = 'node'
+$env:MCP_ARGS = '["C:\\path\\to\\server.mjs","--stdio"]'
+node examples/stdio.mjs
+```
+
+```sh
+export MCP_COMMAND='node'
+export MCP_ARGS='["/path/to/server.mjs","--stdio"]'
+node examples/stdio.mjs
+```
+
+The JSON array in `MCP_ARGS` becomes the argument list for `MCP_COMMAND`. The example stops with an error if either variable is missing or if `MCP_ARGS` is not a JSON array of strings.
 
 ## Commands and results
 
-| Example                              | Command                            | Expected result                           |
-| ------------------------------------ | ---------------------------------- | ----------------------------------------- |
-| [HTTP](http.mjs)                     | `node examples/http.mjs`           | Lists server tools.                       |
-| [Custom headers](custom-headers.mjs) | `node examples/custom-headers.mjs` | Lists server tools with a custom header.  |
-| [Static token](static-token.mjs)     | `node examples/static-token.mjs`   | Lists server tools with a bearer token.   |
-| [stdio](stdio.mjs)                   | `node examples/stdio.mjs`          | Lists server tools from a local process.  |
-| [Token provider](token-provider.mjs) | `node examples/token-provider.mjs` | Lists server tools with a token provider. |
+Run each command from the repository root for a checkout. Run each command through `npm explore` for an installed package.
+
+| Example                              | Command                            | Expected result                                |
+| ------------------------------------ | ---------------------------------- | ---------------------------------------------- |
+| [HTTP](http.mjs)                     | `node examples/http.mjs`           | Lists tools from the configured HTTP server.   |
+| [Custom headers](custom-headers.mjs) | `node examples/custom-headers.mjs` | Lists tools with the configured custom header. |
+| [Static token](static-token.mjs)     | `node examples/static-token.mjs`   | Lists tools with the configured bearer token.  |
+| [stdio](stdio.mjs)                   | `node examples/stdio.mjs`          | Lists tools from the configured local server.  |
+| [Token provider](token-provider.mjs) | `node examples/token-provider.mjs` | Lists tools with a token from `MCP_TOKEN`.     |
+
+## Permissions
+
+Use only servers that your account may access. Provide only the credentials that the server requires. The examples make MCP requests and do not change server data.
 
 ## Cleanup
 
-Each example closes its client. Stop any local server process that you started for an example.
+Each example closes its client after it lists tools. The stdio example also closes its client if the request fails. Stop any server process that you started separately.
