@@ -38,7 +38,9 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 
 Set `url` for HTTP connections.
 Set `command` for stdio connections. The client rejects stdio options without a command.
-Set `token` to replace an `Authorization` value in `headers` with a bearer value.
+
+Set `token` to send a bearer value. It replaces an `Authorization` value in `headers`.
+When you omit `token`, `MCP_TOKEN` supplies the bearer value. The client keeps other custom headers.
 
 When you set `tokenProvider`, it supplies bearer credentials for each request. The client ignores `token`, `MCP_TOKEN`, and `Authorization` from `headers`.
 When the provider returns an empty string, the client sends no `Authorization` header.

@@ -85,6 +85,7 @@ Keep MCP protocol messages on stdout. Send server logs to stderr.
 
 Set `token` to send a static bearer token. The client sends it in the `Authorization` header.
 Set `tokenProvider` to return a token for each request. Set `headers` to add HTTP request headers.
+When you omit `token`, `MCP_TOKEN` supplies the bearer value. The bearer value does not replace other custom headers, such as `X-Client-Name`.
 
 The package does not run OAuth discovery, consent, token refresh, or user sessions.
 Use an OAuth library in your application. Return its access token from `tokenProvider`.
