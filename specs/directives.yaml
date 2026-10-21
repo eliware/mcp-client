@@ -1,4 +1,4 @@
-version: "14.0"
+version: "15.0"
 description: Defines the scope and supported behavior of the Eliware MCP client.
 directives:
   - id: E-211.0

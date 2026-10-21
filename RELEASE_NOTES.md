@@ -9,7 +9,7 @@
 - Document defaults and required environment values for client and example workflows.
 - Clarify that bearer tokens replace `Authorization` values but preserve unrelated custom headers.
 - Remove the obsolete migration guide. Update API and setup guidance.
-- Align repository instructions with Eliware Convention 15.0.
+- Align repository instructions with Eliware Test 15.0 and remove bundled shared rules.
 
 ## 14.0.0 — 2026-10-21
 
