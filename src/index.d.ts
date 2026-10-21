@@ -1,4 +1,5 @@
 import type { Client, ClientCapabilities, Implementation } from "@modelcontextprotocol/client";
+import type { LoggerWithConfiguredLevels } from "@eliware/log";
 
 export interface McpClientOptions {
   /** MCP server endpoint. The default is http://localhost:1234/mcp. */
@@ -21,6 +22,8 @@ export interface McpClientOptions {
   clientInfo?: Implementation;
   /** Client capabilities. */
   capabilities?: ClientCapabilities;
+  /** Receives structured connection records. */
+  logger?: LoggerWithConfiguredLevels;
 }
 
 /** Connect to an MCP server and return its initialized SDK v2 client. */

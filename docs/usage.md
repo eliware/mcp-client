@@ -84,6 +84,22 @@ Use `headers` for more HTTP headers. These options do not apply to stdio.
 Pass options to `mcpClient(options)`. The [API guide](api.md) lists each option and its default.
 Set `clientInfo` to change the client name and version. Set `capabilities` to declare client features.
 
+## Configure logging
+
+Pass a logger from `@eliware/log` to receive structured connection records.
+The client creates a JSON logger at the `info` level when you omit the `logger` option.
+Set `level` to `debug` to include connection start records.
+
+```js
+import { createLogger } from "@eliware/log";
+import { mcpClient } from "@eliware/mcp-client";
+
+const logger = createLogger({ level: "debug", format: "json" });
+const client = await mcpClient({ url: "https://mcp.example.com/mcp", logger });
+```
+
+The client logs the operation and transport. It does not log URLs, headers, tokens, command arguments, or error messages.
+
 ## Set environment values
 
 The client reads these values when the matching option is not set:

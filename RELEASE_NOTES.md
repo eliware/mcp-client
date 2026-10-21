@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Add structured connection logs with an injectable `@eliware/log` logger.
 - Require protocol version `2026-07-28` through SDK v2 discovery without older handshake support.
 - Default to no client capabilities unless the application declares them.
 - Verify interoperability with MCP server 2.3.1, Node adapter 2.1.1, and Fastify adapter 2.0.1.

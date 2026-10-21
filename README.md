@@ -23,7 +23,7 @@ Pure ESM MCP client for SDK v2, Streamable HTTP, stdio, and bearer authenticatio
 
 ## Features
 
-Connect through Streamable HTTP or stdio. Use bearer tokens, custom HTTP headers, or token providers.
+Connect through Streamable HTTP or stdio. Use bearer tokens, custom HTTP headers, token providers, and structured logs.
 
 ## Requirements
 

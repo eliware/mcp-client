@@ -32,6 +32,7 @@ All options are optional. The client uses Streamable HTTP when `transport` is no
 | `env`           | `Record<string, string>`          | None                                                    | Sets environment values for the local process.       |
 | `clientInfo`    | SDK `Implementation`              | Package name and version                                | Sets the client identity.                            |
 | `capabilities`  | SDK `ClientCapabilities`          | `{}`                                                    | Declares capabilities that the application supports. |
+| `logger`        | `LoggerWithConfiguredLevels`      | JSON logger at `info` level                             | Receives structured connection records.              |
 
 ## Transport and authentication options
 
@@ -40,6 +41,23 @@ Set `command` for stdio connections. The client rejects stdio options without a 
 Set `token` to replace an `Authorization` value in `headers` with a bearer value.
 When `tokenProvider` returns a token, the SDK sends it as a bearer value and does not use `token`, `MCP_TOKEN`, or `Authorization` from `headers`.
 When the provider returns an empty string, the SDK keeps the configured `Authorization` header and does not use `token` or `MCP_TOKEN`.
+
+## Logging
+
+Pass a logger from `@eliware/log` with the `logger` option. The client creates a JSON logger at the `info` level when you omit this option.
+The client emits `debug` and `info` records when a connection starts and succeeds.
+The client emits an `error` record when a connection fails. It emits a `warn` record when transport cleanup fails.
+
+Each record includes the operation and transport. The client does not include URLs, headers, tokens, command arguments, or error messages.
+The logger supports `error`, `warn`, `info`, `http`, `verbose`, `debug`, and `silly` levels. Set the logger level to control which records appear.
+
+```js
+import { createLogger } from "@eliware/log";
+import { mcpClient } from "@eliware/mcp-client";
+
+const logger = createLogger({ level: "debug", format: "json" });
+const client = await mcpClient({ url: "https://mcp.example.com/mcp", logger });
+```
 
 ## Protocol support
 
