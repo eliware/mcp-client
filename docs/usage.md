@@ -92,8 +92,8 @@ Use `tokenProvider` when the access token can change. The provider runs for HTTP
 
 The token provider can return a string or a promise that resolves to a string.
 When it returns a token, the SDK sends that value as a bearer token.
-When it returns an empty string, the SDK uses `Authorization` from `headers` when you set it.
-The client does not use `token` or `MCP_TOKEN` when you set `tokenProvider`.
+When it returns an empty string, the client sends no `Authorization` header.
+The client ignores `token`, `MCP_TOKEN`, and `Authorization` from `headers` when you set `tokenProvider`.
 
 Use `headers` for more HTTP headers. These options do not apply to stdio.
 
@@ -137,8 +137,8 @@ The client does not load `.env` files.
 
 The `url` option sets the endpoint directly. It prevents use of `MCP_URL` or `MCP_PORT`.
 The `token` option replaces `MCP_TOKEN` and any `Authorization` value in `headers`.
-When `tokenProvider` returns a token, the SDK sends it as a bearer value and does not use `token`, `MCP_TOKEN`, or `Authorization` from `headers`.
-When the provider returns an empty string, the SDK keeps the configured `Authorization` header and does not use `token` or `MCP_TOKEN`.
+When you set `tokenProvider`, it supplies bearer credentials for each request. The client ignores `token`, `MCP_TOKEN`, and `Authorization` from `headers`.
+When the provider returns an empty string, the client sends no `Authorization` header.
 
 ## Manage connection errors
 

@@ -36,17 +36,18 @@ test("creates Streamable HTTP with bearer and custom headers", () => {
   });
 });
 
-test("uses the token provider for HTTP requests", () => {
+test("uses the token provider and omits static authorization headers", () => {
   const tokenProvider = jest.fn(async () => "rotated");
   const transport = createClientTransport(
-    { tokenProvider, headers: { "x-app": "test", Authorization: "Basic fallback" } },
+    {
+      tokenProvider,
+      token: "static-token",
+      headers: { "x-app": "test", Authorization: "Basic fallback" },
+    },
     { HTTPTransportClass: HTTP },
   );
   expect(transport.options.authProvider.token).toBe(tokenProvider);
-  expect(transport.options.requestInit.headers).toEqual({
-    "x-app": "test",
-    Authorization: "Basic fallback",
-  });
+  expect(transport.options.requestInit.headers).toEqual({ "x-app": "test" });
 });
 
 test("uses the environment token when options omit a token", () => {

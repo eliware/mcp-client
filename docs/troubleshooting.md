@@ -12,9 +12,9 @@ Set `url` to override both environment values.
 
 Check that the token is valid and that the server accepts bearer authentication.
 Check that `tokenProvider` returns a valid token for each request.
-When `tokenProvider` returns a token, the SDK sends it as a bearer value and does not use `token`, `MCP_TOKEN`, or `Authorization` from `headers`.
-When the provider returns an empty string, the SDK keeps the configured `Authorization` header and does not use `token` or `MCP_TOKEN`.
-The `token` option replaces an `Authorization` value in `headers`.
+When you set `tokenProvider`, it supplies bearer credentials for each request. The client ignores `token`, `MCP_TOKEN`, and `Authorization` from `headers`.
+When the provider returns an empty string, the client sends no `Authorization` header.
+Without `tokenProvider`, the `token` option replaces an `Authorization` value in `headers`.
 
 ## stdio connection fails
 

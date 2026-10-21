@@ -16,3 +16,17 @@ test("adds a bearer token and replaces an existing authorization value", () => {
 test("adds a bearer token when no custom headers exist", () => {
   expect(resolveAuthHeaders("token")).toEqual({ Authorization: "Bearer token" });
 });
+
+test("omits authorization headers when a token provider owns authentication", () => {
+  expect(
+    resolveAuthHeaders(
+      undefined,
+      {
+        Authorization: "Basic fallback",
+        authorization: "Bearer lowercase",
+        "x-app": "test",
+      },
+      { omitAuthorization: true },
+    ),
+  ).toEqual({ "x-app": "test" });
+});
